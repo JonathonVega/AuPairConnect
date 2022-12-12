@@ -10,6 +10,14 @@
       "StackName": "amplify-aupairconnect-dev-152926",
       "StackId": "arn:aws:cloudformation:us-east-1:937656879166:stack/amplify-aupairconnect-dev-152926/ae18f170-75a4-11ed-8cad-12667b5cc6b9",
       "AmplifyAppId": "dypgtwtntecoe"
+    },
+    "categories": {
+      "auth": {
+        "aupairconnect2970bbe8": {}
+      },
+      "api": {
+        "aupairconnect": {}
+      }
     }
   }
 }
