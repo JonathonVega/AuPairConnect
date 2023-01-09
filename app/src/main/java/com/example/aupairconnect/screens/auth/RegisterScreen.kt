@@ -43,6 +43,7 @@ fun RegisterScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
+
     //TODO: Add loading spinner when getting current location
 
     HorizontalPager(count = 4,
