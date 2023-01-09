@@ -18,7 +18,7 @@ import com.example.aupairconnect.AuthViewModel
 import com.example.aupairconnect.graphs.Graph
 
 @Composable
-fun ConfirmRegisterScreen(
+fun VerifyScreen(
     onNavigation: NavHostController,
     viewModel: AuthViewModel
 ) {
@@ -28,7 +28,7 @@ fun ConfirmRegisterScreen(
         .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Register Page", fontSize = 40.sp)
+        Text(text = "Verify Page", fontSize = 40.sp)
 
         Box(){
             Column() {

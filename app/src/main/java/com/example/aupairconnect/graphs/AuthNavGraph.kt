@@ -5,7 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.aupairconnect.graphs.Graph
-import com.example.aupairconnect.screens.ConfirmRegisterScreen
+import com.example.aupairconnect.screens.VerifyScreen
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController){
     navigation(
@@ -22,8 +22,8 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController){
         composable(route = Screens.RegisterScreen.route){
             RegisterScreen(onNavigation = navController, viewModel = authViewModel)
         }
-        composable(route = Screens.ConfirmRegisterScreen.route){
-            ConfirmRegisterScreen(onNavigation = navController, viewModel = authViewModel)
+        composable(route = Screens.VerifyScreen.route){
+            VerifyScreen(onNavigation = navController, viewModel = authViewModel)
         }
 
     }

@@ -11,7 +11,7 @@ sealed class Screens(
 ){
     object LoginScreen: Screens("login")
     object RegisterScreen: Screens("register")
-    object ConfirmRegisterScreen: Screens("confirmRegister")
+    object VerifyScreen: Screens("verify")
     object HomeScreen: Screens("home")
     object ChatScreen: Screens("chat")
     object ProfileScreen: Screens("profile")
