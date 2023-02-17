@@ -159,21 +159,6 @@ fun RegisterScreen(
             }
         }
     }
-//    Column(modifier = Modifier
-//        .fillMaxSize()
-//        .verticalScroll(rememberScrollState()),
-//        verticalArrangement = Arrangement.SpaceBetween,
-//        horizontalAlignment = Alignment.CenterHorizontally) {
-//        Text(text = "Register Page", fontSize = 40.sp)
-//
-//        //TODO Put TextFields into a box
-//        Box(){
-//
-//
-//        }
-//
-//
-//    }
 }
 
 @Composable
