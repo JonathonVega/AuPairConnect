@@ -118,6 +118,11 @@ class AuthViewModel constructor(
         { Log.i("AuthDemo", "Code was sent again: $it") }, {Log.e("AuthDemo", "Failed to resend code", it) })
     }
 
+    fun goToSignUpScreen(){
+        val route = Screens.RegisterScreen.route
+        onNavigation.navigate(route)
+    }
+
     private fun handlePermissions(context: Context, activity: MainActivity) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             Log.d("$$$$", "Location permissions granted")

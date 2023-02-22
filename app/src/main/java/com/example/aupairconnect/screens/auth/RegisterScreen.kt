@@ -16,9 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -53,17 +56,17 @@ fun RegisterScreen(
         when(page){
             0 -> {
                 Column(
-                    verticalArrangement = Arrangement.SpaceBetween,
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = "Register Page", fontSize = 40.sp)
 
-                    OutlinedTextField(value = emailValue.value,
+                    TextField(value = emailValue.value,
                         onValueChange = {emailValue.value = it},
                         label = { Text(text = "Enter Email")})
-                    OutlinedTextField(value = passwordValue.value,
+                    TextField(value = passwordValue.value,
                         onValueChange = {passwordValue.value = it},
                         label = {Text(text = "Enter Password")})
-                    OutlinedTextField(value = passwordConfirmationValue.value,
+                    TextField(value = passwordConfirmationValue.value,
                         onValueChange = {passwordConfirmationValue.value = it},
                         label = {Text(text = "Confirm Password")})
                     Button(onClick = {
@@ -111,21 +114,13 @@ fun RegisterScreen(
                         onValueChange = { originValue.value = it},
                         label = {Text(text = "Where Are You From?")})
                     Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 0.dp)) {
-                        TextField(modifier = Modifier.weight(3f).padding(end = 15.dp),
+                        TextField(modifier = Modifier
+                            .weight(3f)
+                            .padding(end = 15.dp),
                             value = viewModel.userLocation.value,
                             onValueChange = {currentLocationValue.value = it},
                             enabled = false,
                             label = {Text(text = "Current Location?")})
-//                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-//                            Button(modifier = Modifier
-//                                .size(40.dp),
-//                                onClick = {
-//
-//                                }){
-////                            Text(text = "Get Location")
-//                                Icon(Icons.Default.Place, contentDescription = "Location", tint = Color.White, modifier = Modifier.fillMaxSize())
-//                            }
-//                        }
                         Button(modifier = Modifier
                             .size(50.dp),
                             contentPadding = PaddingValues(10.dp),
@@ -170,4 +165,5 @@ fun registerAuth(){
 fun registerInformation(){
 
 }
+
 
