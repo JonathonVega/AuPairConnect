@@ -5,6 +5,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.aupairconnect.*
+import com.example.aupairconnect.repositories.AuthRepository
+import com.example.aupairconnect.presentation.chat.ChatViewModel
+import com.example.aupairconnect.presentation.discover.DiscoverViewModel
+import com.example.aupairconnect.presentation.profile.ProfileViewModel
 
 @Composable
 fun HomeNavGraph(navController: NavHostController){
@@ -15,14 +19,16 @@ fun HomeNavGraph(navController: NavHostController){
     ){
         val authRepository = AuthRepository()
         composable(route = BottomNavigationItem.Discover.route){
-            DiscoverScreen()
+            val discoverViewModel = DiscoverViewModel(navController)
+            DiscoverScreen(navController, discoverViewModel)
         }
         composable(route = BottomNavigationItem.Chat.route){
-            ChatScreen()
+            val chatViewModel = ChatViewModel(navController)
+            ChatScreen(navController, chatViewModel)
         }
         composable(route = BottomNavigationItem.Profile.route){
-            val authViewModel = AuthViewModel(navController, authRepository)
-            ProfileScreen(navController, authViewModel)
+            val profileViewModel = ProfileViewModel(navController, authRepository)
+            ProfileScreen(navController, profileViewModel)
         }
     }
 }

@@ -5,7 +5,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.aupairconnect.graphs.Graph
+import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.screens.VerifyScreen
+import com.example.aupairconnect.presentation.auth.AuthViewModel
 
 fun NavGraphBuilder.authNavGraph(navController: NavHostController){
     navigation(

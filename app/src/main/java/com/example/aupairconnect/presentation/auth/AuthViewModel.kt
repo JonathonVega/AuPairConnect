@@ -1,4 +1,4 @@
-package com.example.aupairconnect
+package com.example.aupairconnect.presentation.auth
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -16,6 +16,9 @@ import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.cognito.exceptions.service.UserNotConfirmedException
 import com.amplifyframework.core.Amplify
+import com.example.aupairconnect.repositories.AuthRepository
+import com.example.aupairconnect.MainActivity
+import com.example.aupairconnect.Screens
 import com.example.aupairconnect.graphs.Graph
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -107,10 +110,6 @@ class AuthViewModel constructor(
         },
             {Log.e("Auth Confirm SignUp", "Confirmation Failed")}
         )
-    }
-
-    fun signOut(){
-        authRepository.signOut()
     }
 
     fun resendVerificationCode(){

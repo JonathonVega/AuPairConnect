@@ -5,7 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
 import com.example.aupairconnect.graphs.RootNavigationGraph
-import com.example.aupairconnect.ui.theme.AuPairConnectTheme
+import com.example.aupairconnect.presentation.ui.theme.AuPairConnectTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

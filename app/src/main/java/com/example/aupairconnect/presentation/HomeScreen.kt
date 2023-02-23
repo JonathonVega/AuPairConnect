@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.aupairconnect.graphs.HomeNavGraph
+import com.example.aupairconnect.presentation.ui.theme.ACTheme
 
 @Composable
 fun HomeScreen(navController: NavHostController = rememberNavController()){
@@ -35,7 +36,7 @@ fun BottomBar(navController: NavHostController) {
 
     val bottomBarDestination = screens.any { it.route == currentDestination?.route }
     if (bottomBarDestination) {
-        BottomNavigation(backgroundColor = Color.Blue) {
+        BottomNavigation(backgroundColor = ACTheme) {
             screens.forEach { screen ->
                 AddItem(
                     screen = screen,

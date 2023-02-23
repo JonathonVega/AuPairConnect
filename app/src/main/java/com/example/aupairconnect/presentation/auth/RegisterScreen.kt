@@ -8,29 +8,23 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.example.aupairconnect.ui.theme.ACTheme
+import com.example.aupairconnect.presentation.ui.theme.ACTheme
+import com.example.aupairconnect.presentation.auth.AuthViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -103,7 +97,7 @@ fun RegisterScreen(
                 Column(modifier = Modifier.padding(start = 75.dp, end = 75.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    profileImage()
+                    profileRegisterImage()
                     TextField(value = nameValue.value,
                         onValueChange = {nameValue.value = it},
                         colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
@@ -164,7 +158,7 @@ fun RegisterScreen(
 }
 
 @Composable
-fun profileImage(){
+fun profileRegisterImage(){
     androidx.compose.foundation.Image(
         painter = painterResource(id = R.drawable.baseline_person_24),
         contentDescription = "Image",

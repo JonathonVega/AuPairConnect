@@ -24,7 +24,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.aupairconnect.ui.theme.ACTheme
+import com.example.aupairconnect.graphs.Graph
+import com.example.aupairconnect.presentation.ui.theme.ACTheme
+import com.example.aupairconnect.presentation.auth.AuthViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -42,8 +44,9 @@ fun LoginScreen(
 
     }
 
-    Column(modifier = Modifier.clickable{keyboardController?.hide()}.
-        fillMaxSize(),
+    Column(modifier = Modifier
+        .clickable { keyboardController?.hide() }
+        .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally) {
 
@@ -95,6 +98,11 @@ fun LoginScreen(
 //        Button(onClick = {
 //            viewModel.getCurrentUser()
 //        }){ Text(text = "Check Current User")}
+        Button(onClick = {
+            onNavigation.navigate(Graph.HOME)
+        }){
+            Text(text = "Guest Sign In")
+        }
         Row(modifier = Modifier.padding(top = 50.dp)){
             Text(text = "Don't have an account? ")
             ClickableText(text = AnnotatedString("Sign up"), onClick = {viewModel.goToSignUpScreen()}, style = TextStyle(fontSize = 16.sp, color = ACTheme))

@@ -1,4 +1,4 @@
-package com.example.aupairconnect
+package com.example.aupairconnect.repositories
 
 import android.util.Log
 import com.amplifyframework.auth.AuthException
