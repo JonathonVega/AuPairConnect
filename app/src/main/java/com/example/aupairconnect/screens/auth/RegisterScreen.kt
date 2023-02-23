@@ -1,10 +1,11 @@
 package com.example.aupairconnect
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Icon
@@ -12,16 +13,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.aupairconnect.ui.theme.ACTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -56,104 +65,114 @@ fun RegisterScreen(
         when(page){
             0 -> {
                 Column(
+                    modifier = Modifier.width(280.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Register Page", fontSize = 40.sp)
+                    Text(text = "Sign Up", fontSize = 40.sp)
 
                     TextField(value = emailValue.value,
                         onValueChange = {emailValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = { Text(text = "Enter Email")})
                     TextField(value = passwordValue.value,
                         onValueChange = {passwordValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = {Text(text = "Enter Password")})
                     TextField(value = passwordConfirmationValue.value,
                         onValueChange = {passwordConfirmationValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = {Text(text = "Confirm Password")})
-                    Button(onClick = {
-                        //TODO Programmatically go back instead of loading new screen
-                        val route = Screens.LoginScreen.route
-                        onNavigation.navigate(route)
-                    }){ Text(text = "Go Back to login")}
+
                     Button(onClick = {
                         scope.launch {
                             pagerState.animateScrollToPage(1)
                         }
                     }){
                         Text(text = "Continue")
+                    }
+
+
+                    //TODO Programmatically go back instead of loading new screen
+                    Row(modifier = Modifier.padding(top = 50.dp)){
+                        Text(text = "Already have an account? ")
+                        ClickableText(text = AnnotatedString("Sign in"), onClick = {viewModel.goToSignInScreen()}, style = TextStyle(fontSize = 16.sp, color = ACTheme))
                     }
                 }
             }
             1 -> {
-                Column() {
-                    OutlinedTextField(value = nameValue.value,
+                Column(modifier = Modifier.padding(start = 75.dp, end = 75.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    profileImage()
+                    TextField(value = nameValue.value,
                         onValueChange = {nameValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = { Text(text = "Enter Your Name")})
-                    OutlinedTextField(value = ageValue.value,
+                    TextField(value = ageValue.value,
                         onValueChange = {ageValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = {Text(text = "What is your age?")})
-
-                    Button(onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(0)
-                        }
-                    }){
-                        Text(text = "Back")
-                    }
-                    Button(onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(2)
-                        }
-                    }){
-                        Text(text = "Continue")
-                    }
-                }
-            }
-            2 -> {
-                Column(modifier = Modifier.padding(start = 50.dp, end = 50.dp)) {
-                    OutlinedTextField(value = originValue.value,
+                    TextField(value = originValue.value,
                         onValueChange = { originValue.value = it},
+                        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                         label = {Text(text = "Where Are You From?")})
-                    Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 0.dp)) {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(vertical = 0.dp)) {
                         TextField(modifier = Modifier
                             .weight(3f)
                             .padding(end = 15.dp),
                             value = viewModel.userLocation.value,
+                            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                             onValueChange = {currentLocationValue.value = it},
                             enabled = false,
-                            label = {Text(text = "Current Location?")})
-                        Button(modifier = Modifier
-                            .size(50.dp),
-                            contentPadding = PaddingValues(10.dp),
-                            onClick = {
-                                viewModel.getCurrentLocation(context)
-                            }){
-                            Icon(Icons.Default.Place, contentDescription = "Location", tint = Color.White)
-                        }
+                            label = {Text(text = "Current Location?")},
+                            trailingIcon = {
+                                val image = Icons.Filled.Place
+                                IconButton(modifier = Modifier.size(50.dp),
+                                    onClick = {viewModel.getCurrentLocation(context)}){
+                                    androidx.compose.material.Icon(imageVector = image, "Current Location", tint = ACTheme)
+                                }
+                            })
                     }
-
-                    Button(onClick = {
-                        if(passwordValue.value == passwordConfirmationValue.value){
-                            println("password confirmed")
-                            //TODO: Put call to AWS into viewModel
-                            viewModel.registerUser(emailValue.value, passwordValue.value)
-
-                            val route = Screens.VerifyScreen.route
-                            onNavigation.navigate(route)
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween){
+                        Button(onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(0)
+                            }
+                        }){
+                            Text(text = "Back")
                         }
-                    }){
-                        Text(text = "Sign Up")
-                    }
-                    Button(onClick = {
-                        scope.launch {
-                            pagerState.animateScrollToPage(1)
+                        Button(onClick = {
+                            if(passwordValue.value == passwordConfirmationValue.value){
+                                println("password confirmed")
+                                //TODO: Put call to AWS into viewModel
+                                viewModel.registerUser(emailValue.value, passwordValue.value)
+
+                                val route = Screens.VerifyScreen.route
+                                onNavigation.navigate(route)
+                            }
+                        }){
+                            Text(text = "Sign Up")
                         }
-                    }){
-                        Text(text = "Back")
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun profileImage(){
+    androidx.compose.foundation.Image(
+        painter = painterResource(id = R.drawable.baseline_person_24),
+        contentDescription = "Image",
+        modifier = Modifier
+            .border(border = BorderStroke(1.dp, color = Color.Black), shape = CircleShape)
+            .width(100.dp)
+            .height(100.dp)
+            .clip(shape = CircleShape))
 }
 
 @Composable

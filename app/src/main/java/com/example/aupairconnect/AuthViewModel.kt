@@ -123,6 +123,11 @@ class AuthViewModel constructor(
         onNavigation.navigate(route)
     }
 
+    fun goToSignInScreen(){
+        val route = Screens.LoginScreen.route
+        onNavigation.navigate(route)
+    }
+
     private fun handlePermissions(context: Context, activity: MainActivity) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
             Log.d("$$$$", "Location permissions granted")
