@@ -17,67 +17,114 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aupairconnect.domain.model.Aupair
+import com.example.aupairconnect.presentation.ui.theme.ACTheme
 
 @Composable
 fun AupairCard(
     aupair: Aupair
 ) {
     val shape =  RoundedCornerShape(24.dp)
+    Box(modifier = Modifier
+        .fillMaxWidth(),
+        contentAlignment = Alignment.Center) {
+        Text(
+            text = aupair.name.toString(),
+            modifier = Modifier
+                .padding(horizontal = 10.dp),
+            color = ACTheme,
+            fontSize = 35.sp,
+            fontWeight = FontWeight.Bold
+        )
+    }
+
     Card(
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp, bottom = 70.dp, top = 20.dp)
+            .padding(start = 10.dp, end = 10.dp, bottom = 70.dp, top = 50.dp)
             .fillMaxSize()
+//            .requiredHeight(600.dp)
             .clip(shape)
             .background(Color.White, shape = shape)
-            .border(10.dp, Color.Black, shape).fillMaxSize()
+//            .border(5.dp, Color.Black, shape)
 
     ) {
-        Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
 
-            Column(horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Image(painter = painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto4),
-                    contentDescription = "Aupair Photo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth())
-                Text(text = aupair.name.toString(), fontSize = 20.sp)
-                Text(text = aupair.age.toString(), fontSize = 20.sp)
-                Image(painter = painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto2),
-                    contentDescription = "Aupair Photo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth())
-                Image(painter = painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto3),
-                    contentDescription = "Aupair Photo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth())
-                Image(painter = painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto5),
-                    contentDescription = "Aupair Photo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth())
-                Image(painter = painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto1),
-                    contentDescription = "Aupair Photo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxWidth())
+        Column(horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.LightGray)
+                .verticalScroll(rememberScrollState())
+        ) {
+//            ImageAndText(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto4), "First Photo", aupair)
+            RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto4))
+
+            Box(modifier = Modifier
+                .border(0.dp, Color.White, shape)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(10.dp))
+                .background(Color.White)
+                .padding(all = 10.dp)) {
+                Column() {
+//                    Text(text = aupair.name.toString(), fontSize = 25.sp, fontWeight = FontWeight.Bold)
+                    Text(text = aupair.originLocation.toString(), fontSize = 25.sp)
+                    Text(text = aupair.age.toString(), fontSize = 25.sp)
+                    if(aupair.isExAupair == true){
+                        Text(text = "Ex Au pair", fontSize = 25.sp)
+                    }
+                }
+            }
+
+            RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto2))
+
+            Box(modifier = Modifier
+                .border(0.dp, Color.White, shape)
+                .clip(RoundedCornerShape(10.dp))
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(all = 10.dp)) {
+                Column() {
+                    Text(text = aupair.bio.toString(), fontSize = 20.sp)
+                }
+            }
+
+            RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto3))
+            RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto5))
+            RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto1))
+
+            Button(onClick = { /*TODO*/ }) {
+                Text(text = "Send ${aupair.name.toString()} a Message")
             }
         }
     }
 }
+
+@Composable
+fun RoundedImage(painter: Painter){
+    val shape =  RoundedCornerShape(24.dp)
+    Image(painter = painter,
+        contentDescription = "Aupair Photo",
+        contentScale = ContentScale.FillWidth,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(Color.White, shape)
+            .border(0.dp, Color.White, shape))
+}
+
 @Composable
 fun ImageAndText(
-    modifier: Modifier = Modifier,
     painter: Painter,
     contentDescription: String,
     aupair: Aupair
 ) {
-    val shape =  RoundedCornerShape(8.dp)
+    val shape =  RoundedCornerShape(16.dp)
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
-            .background(White, shape = shape),
-        contentAlignment = Alignment.BottomStart
+            .background(White, shape = shape)
+            .clip(shape),
+        contentAlignment = Alignment.TopStart
     ) {
         Image(
             painter = painter,
@@ -88,19 +135,15 @@ fun ImageAndText(
                 .clip(shape)
         )
 
-        Column() {
+        Box(modifier = Modifier
+            .padding(start = 10.dp, bottom = 10.dp)
+            .background(ACTheme, shape = shape)) {
             Text(
                 text = aupair.name.toString(),
-                modifier = Modifier.padding(start = 10.dp),
+                modifier = Modifier
+                    .padding(horizontal = 10.dp),
                 color = White,
                 fontSize = 30.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = aupair.originLocation.toString(),
-                modifier = Modifier.padding(start = 10.dp),
-                color = White,
-                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
         }

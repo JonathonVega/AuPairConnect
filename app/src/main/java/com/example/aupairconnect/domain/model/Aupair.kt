@@ -5,5 +5,6 @@ data class Aupair(
     val age: Int? = 0,
     val originLocation: String? = null,
     val currentLocation: String? = null,
-    val isExAupair: Boolean? = false
+    val isExAupair: Boolean? = false,
+    val bio: String? = null
 )
