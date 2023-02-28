@@ -35,14 +35,42 @@ class AuthViewModel constructor(
     private val authRepository: AuthRepository,
 ) : ViewModel() {
 
+    // TODO: Put variables in viewModel
+    //SIGN IN VARIABLES
+
+
+    // REGISTER VARIABLES
+    var registerEmail = mutableStateOf("")
+    val registerPassword = mutableStateOf("")
+    val registerConfirmPassword = mutableStateOf("")
+
+    val registerName = mutableStateOf("")
+    val registerAge = mutableStateOf("")
+    val registerCountryOrigin = mutableStateOf("")
+    val registerCurrentLocation = mutableStateOf("City, Country")
+
     var signInSuccessful = mutableStateOf(false)
     var userNotConfirmedFailure = mutableStateOf(false)
-    var userLocation = mutableStateOf("City, Country!")
     var userEmail: String = ""
 
+    // LOCATION SERVICE VARIABLES
     lateinit var permissionsManager: PermissionsManager
     var permissionsListener = getPermissionsListener()
     var userCoordinates = LatLng(0.0,0.0)
+
+    val COUNTRY_LIST = arrayOf("Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas",
+        "Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei",
+        "Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia",
+        "Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands",
+        "Faroe Islands","Fiji","Finland","France","French Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala",
+        "Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan",
+        "Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Madagascar",
+        "Malawi","Malaysia","Maldives","Mali","Malta","Mauritania","Mauritius","Mexico","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nepal","Netherlands",
+        "Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Norway","Oman","Pakistan","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland",
+        "Portugal","Puerto Rico","Qatar","Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent","Samoa","San Marino","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone",
+        "Singapore","Slovakia","Slovenia","South Africa","South Korea","Spain","Sri Lanka","Sudan","Suriname","Swaziland","Sweden","Switzerland",
+        "Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Uganda","Ukraine","United Arab Emirates",
+        "United Kingdom","United States","Uruguay","Uzbekistan","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe")
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 
@@ -95,10 +123,28 @@ class AuthViewModel constructor(
         }
     }
 
-    fun registerUser(email: String, password: String){
-        authRepository.registerUser(email, password)
-
-
+    fun registerUser(){
+        if(registerEmail.value.isNotBlank()
+            && registerPassword.value.isNotBlank()
+            && registerConfirmPassword.value.isNotBlank()) {
+            if (registerName.value.isNotBlank()
+                && registerAge.value.isNotBlank()
+                && registerCountryOrigin.value.isNotBlank()
+                && registerCurrentLocation.value.isNotBlank()){
+                if (registerAge.value.contains(",")
+                    || registerAge.value.contains(".")
+                    || registerAge.value.contains("-")
+                    || registerAge.value.contains(" ")){
+                    authRepository.registerUser(registerEmail.value, registerPassword.value)
+                } else {
+                    //TODO: Add error message
+                }
+            } else {
+                //TODO: Add error message
+            }
+        } else {
+            //TODO: Add error message
+        }
     }
 
     fun confirmSignUp(code:String){
@@ -126,6 +172,8 @@ class AuthViewModel constructor(
         val route = Screens.LoginScreen.route
         onNavigation.navigate(route)
     }
+
+    // region LOCATION PERMISSIONS
 
     private fun handlePermissions(context: Context, activity: MainActivity) {
         if (PermissionsManager.areLocationPermissionsGranted(context)) {
@@ -177,17 +225,14 @@ class AuthViewModel constructor(
                                 userCoordinates = LatLng(address[0].latitude, address[0].longitude)
                                 println("${address[0].locality}, ${address[0].countryName}")
                                 println(address.toString())
-                                userLocation.value = "${address[0].locality}, ${address[0].countryName}"
+                                registerCurrentLocation.value = "${address[0].locality}, ${address[0].countryName}"
                             }
                         }
-
                     }
                 }
                 CoroutineScope(Dispatchers.IO).launch{
                     delay(5000)
                 }
-
-
             } else {
                 //setting open here
             }

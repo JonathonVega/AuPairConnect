@@ -1,9 +1,42 @@
-# This "input" configures a global authorization rule to enable public access to
-# all models in this schema. Learn more about authorization rules here: https://docs.amplify.aws/cli/graphql/authorization-rules
-input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    age: Int
+    gender: String
+    bio:String
+    isExAupair: Boolean
+    originLocation: String
+    currentLocation: Coordinates
+    createdAt: String
+}
 
-type Todo @model {
-  id: ID!
-  name: String!
-  description: String
+type Coordinates {
+    latitude: Float!
+    longitude: Float!
+}
+
+type Chatroom {
+    id: ID
+    messages: [Message]
+    users: [User]
+}
+
+type Message {
+    id: ID
+    text: String
+    createdBy: User
+    createdAt: String
+}
+
+type Mutation {
+    addMessage(text:String!, userId: Int!, chatroomId: ID!): Message
+}
+
+type Query {
+    chatrooms: [Chatroom]
+    chatroom(id:Int): Chatroom
+    messages(chatroomId:Int): [Message]
+    Users(chatroomId: Int): [User]
+    user(id:Int): User
 }

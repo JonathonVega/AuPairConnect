@@ -29,7 +29,6 @@ class AuthRepository() {
         } catch (error:AuthException){
             Log.e("AuthQuickStart", "Sign up failed", error)
         }
-
     }
 
     fun signIn(email: String, password: String): Boolean{
