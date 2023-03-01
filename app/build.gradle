@@ -81,6 +81,7 @@ dependencies {
 
     //AWS
     implementation 'com.amplifyframework:core:2.2.2'
+    implementation 'com.amplifyframework:core-kotlin:2.2.2'
     implementation 'com.amplifyframework:aws-api:2.2.2'
     implementation 'com.amplifyframework:aws-auth-cognito:2.2.2'
     implementation 'com.amplifyframework:aws-datastore:2.2.2'

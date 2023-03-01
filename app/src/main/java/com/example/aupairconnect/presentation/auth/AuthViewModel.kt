@@ -84,7 +84,10 @@ class AuthViewModel constructor(
     var errorOverAge = mutableStateOf(false)
 
     fun getCurrentUser(){
-        return Amplify.Auth.getCurrentUser({Log.i("AuthCurrentUser", "Current User is: $it")},{Log.e ("AuthCurrentUser", "Couldn't retrieve current user: ", it) })
+        CoroutineScope(Dispatchers.IO).launch {
+            authRepository.getCurrentUser()
+        }
+//        return Amplify.Auth.getCurrentUser({Log.i("AuthCurrentUser", "Current User is: $it")},{Log.e ("AuthCurrentUser", "Couldn't retrieve current user: ", it) })
     }
 
     fun signIn(email:String, password:String) {
@@ -166,7 +169,9 @@ class AuthViewModel constructor(
                     errorRegisterInfoEmpty.value = false
                     errorAgeCharInvalid.value = false
                     errorOverAge.value = false
-                    authRepository.registerUser(registerEmail.value, registerPassword.value)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        authRepository.registerUser(registerEmail.value, registerPassword.value)
+                    }
                     val route = Screens.VerifyScreen.route
                     onNavigation.navigate(route)
 
@@ -182,14 +187,9 @@ class AuthViewModel constructor(
     }
 
     fun confirmSignUp(code:String){
-        Amplify.Auth.confirmSignUp(userEmail, code,
-            { result ->
-                if(result.isSignUpComplete){
-                    Log.i("Auth Confirm Signup", "Confirmation Succeeded")
-                }
-        },
-            {Log.e("Auth Confirm SignUp", "Confirmation Failed")}
-        )
+        CoroutineScope(Dispatchers.IO).launch {
+            authRepository.confirmSignUp(userEmail, code)
+        }
     }
 
     fun resendVerificationCode(){

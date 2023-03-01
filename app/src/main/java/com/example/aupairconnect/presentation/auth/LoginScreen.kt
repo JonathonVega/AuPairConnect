@@ -95,9 +95,9 @@ fun LoginScreen(
             }
         }
 
-//        Button(onClick = {
-//            viewModel.getCurrentUser()
-//        }){ Text(text = "Check Current User")}
+        Button(onClick = {
+            viewModel.getCurrentUser()
+        }){ Text(text = "Check Current User")}
         Button(onClick = {
             onNavigation.navigate(Graph.HOME)
         }){

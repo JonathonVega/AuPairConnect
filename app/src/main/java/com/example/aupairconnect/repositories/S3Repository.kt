@@ -2,14 +2,20 @@ package com.example.aupairconnect.repositories
 
 import android.util.Log
 import com.amplifyframework.core.Amplify
+import java.io.File
 
 class S3Repository {
 
-    fun uploadRegisterProfileUri(){
-//        println("Going to Check the User!!!!!!!!!!!!!******")
-//        val user = Amplify.Auth.getCurrentUser({ Log.i("AuthCurrentUser", "Current User is: $it")},{ Log.e ("AuthCurrentUser", "Couldn't retrieve current user: ", it) })
-//        println("The current user is: ${user}")
-    }
+//    fun uploadRegisterProfileUri(email:String){
+//        val exampleFile = File(applicationContext.filesDir, "${email}_ExampleKey")
+//        exampleFile.writeText("Example file contents")
+//
+//        val result = Amplify.Storage.uploadFile("ExampleKey", exampleFile,
+//            { Log.i("MyAmplifyApp", "Successfully uploaded: ${it.key}") },
+//            { Log.e("MyAmplifyApp", "Upload failed", it) }
+//        )
+//        return result.
+//    }
 
     fun uploadUserPhoto(){
 
