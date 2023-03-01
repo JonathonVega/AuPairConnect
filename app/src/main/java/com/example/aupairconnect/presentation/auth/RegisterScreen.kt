@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -128,8 +129,9 @@ fun RegisterScreen(
 
                     Button(onClick = {
                         scope.launch {
-                            pagerState.animateScrollToPage(1)
+                            viewModel.continueSignUp(pagerState)
                         }
+
                     }){
                         Text(text = "Continue")
                     }
@@ -139,6 +141,12 @@ fun RegisterScreen(
                     Row(modifier = Modifier.padding(top = 50.dp)){
                         Text(text = "Already have an account? ")
                         ClickableText(text = AnnotatedString("Sign in"), onClick = {viewModel.goToSignInScreen()}, style = TextStyle(fontSize = 16.sp, color = ACTheme))
+                    }
+                    if(viewModel.errorEmailPasswordEmpty.value){
+                        Text(text = "* Missing Email/Password", color = Color.Red, textAlign = TextAlign.Center)
+                    }
+                    if(viewModel.errorPasswordsNoMatch.value){
+                        Text(text = "* Passwords do not match", color = Color.Red, textAlign = TextAlign.Center)
                     }
                 }
             }
@@ -167,7 +175,9 @@ fun RegisterScreen(
                                         )
                                     }
                             )
-                            Box(modifier = Modifier.padding(1.dp).border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
+                            Box(modifier = Modifier
+                                .padding(1.dp)
+                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
                                 Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
                                     contentDescription = "edit icon",
                                     modifier = Modifier.size(30.dp))
@@ -194,7 +204,9 @@ fun RegisterScreen(
                                         )
                                     }
                             )
-                            Box(modifier = Modifier.padding(1.dp).border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
+                            Box(modifier = Modifier
+                                .padding(1.dp)
+                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
                                 Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
                                     contentDescription = "edit icon",
                                     modifier = Modifier.size(30.dp))
@@ -244,16 +256,23 @@ fun RegisterScreen(
                         }
                         Button(onClick = {
                             if(viewModel.registerPassword.value == viewModel.registerConfirmPassword.value){
-                                println("password confirmed")
                                 //TODO: Put call to AWS into viewModel
                                 viewModel.registerUser()
 
-                                val route = Screens.VerifyScreen.route
-                                onNavigation.navigate(route)
+
                             }
                         }){
                             Text(text = "Sign Up")
                         }
+                    }
+                    if(viewModel.errorRegisterInfoEmpty.value){
+                        Text(text = "* All Info Required for Sign Up", color = Color.Red, textAlign = TextAlign.Center)
+                    }
+                    if(viewModel.errorAgeCharInvalid.value){
+                        Text(text = "* Age had invalid characters. Please input numbers only.", color = Color.Red, textAlign = TextAlign.Center)
+                    }
+                    if(viewModel.errorOverAge.value){
+                        Text(text = "* Age should be between 1-99", color = Color.Red, textAlign = TextAlign.Center)
                     }
                 }
             }

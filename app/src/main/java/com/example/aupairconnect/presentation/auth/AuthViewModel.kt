@@ -20,6 +20,8 @@ import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
 import com.example.aupairconnect.graphs.Graph
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -54,16 +56,18 @@ class AuthViewModel constructor(
     var userEmail: String = ""
 
     // LOCATION SERVICE VARIABLES
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var permissionsManager: PermissionsManager
     var permissionsListener = getPermissionsListener()
     var userCoordinates = LatLng(0.0,0.0)
 
+
     val COUNTRY_LIST = arrayOf("Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas",
         "Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei",
-        "Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Cook Islands","Costa Rica","Cote D Ivoire","Croatia",
-        "Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Ethiopia","Falkland Islands",
-        "Faroe Islands","Fiji","Finland","France","French Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada","Guam","Guatemala",
-        "Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan",
+        "Bulgaria","Burkina Faso","Burundi","Cambodia","Cameroon","Canada","Cape Verde","Cayman Islands","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Cook Islands"
+        ,"Costa Rica","Cote D Ivoire","Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea",
+        "Estonia","Ethiopia","Falkland Islands","Faroe Islands","Fiji","Finland","France","French Polynesia","Gabon","Gambia","Georgia","Germany","Ghana","Gibraltar","Greece","Greenland","Grenada",
+        "Guam","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hong Kong","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan",
         "Jordan","Kazakhstan","Kenya","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Macau","Madagascar",
         "Malawi","Malaysia","Maldives","Mali","Malta","Mauritania","Mauritius","Mexico","Moldova","Monaco","Mongolia","Montenegro","Montserrat","Morocco","Mozambique","Myanmar","Namibia","Nepal","Netherlands",
         "Netherlands Antilles","New Caledonia","New Zealand","Nicaragua","Niger","Nigeria","Norway","Oman","Pakistan","Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland",
@@ -72,14 +76,18 @@ class AuthViewModel constructor(
         "Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Uganda","Ukraine","United Arab Emirates",
         "United Kingdom","United States","Uruguay","Uzbekistan","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe")
 
-    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+    // ERROR MESSAGES VARIABLES
+    var errorEmailPasswordEmpty = mutableStateOf(false)
+    var errorPasswordsNoMatch = mutableStateOf(false)
+    var errorRegisterInfoEmpty = mutableStateOf(false)
+    var errorAgeCharInvalid = mutableStateOf(false)
+    var errorOverAge = mutableStateOf(false)
 
     fun getCurrentUser(){
         return Amplify.Auth.getCurrentUser({Log.i("AuthCurrentUser", "Current User is: $it")},{Log.e ("AuthCurrentUser", "Couldn't retrieve current user: ", it) })
     }
 
     fun signIn(email:String, password:String) {
-        println("In viewModel")
 
         CoroutineScope(Dispatchers.IO).launch {
             withContext(Dispatchers.IO){
@@ -105,7 +113,6 @@ class AuthViewModel constructor(
                         }
                     }
                 )
-                println("Finished auth, onto next screen")
                 delay(2000)
                 withContext(Dispatchers.Main){
                     if(signInSuccessful.value){
@@ -113,7 +120,6 @@ class AuthViewModel constructor(
                         onNavigation.navigate(Graph.HOME)
                     }
                     if(userNotConfirmedFailure.value){
-                        println("It pushes to verify screen")
                         userEmail = email
                         val route = Screens.VerifyScreen.route
                         onNavigation.navigate(route)
@@ -123,27 +129,55 @@ class AuthViewModel constructor(
         }
     }
 
-    fun registerUser(){
-        if(registerEmail.value.isNotBlank()
-            && registerPassword.value.isNotBlank()
-            && registerConfirmPassword.value.isNotBlank()) {
-            if (registerName.value.isNotBlank()
-                && registerAge.value.isNotBlank()
-                && registerCountryOrigin.value.isNotBlank()
-                && registerCurrentLocation.value.isNotBlank()){
-                if (registerAge.value.contains(",")
-                    || registerAge.value.contains(".")
-                    || registerAge.value.contains("-")
-                    || registerAge.value.contains(" ")){
-                    authRepository.registerUser(registerEmail.value, registerPassword.value)
-                } else {
-                    //TODO: Add error message
-                }
+    @OptIn(ExperimentalPagerApi::class)
+    suspend fun continueSignUp(pagerState: PagerState){
+        errorEmailPasswordEmpty.value = false
+        errorPasswordsNoMatch.value = false
+        if(registerEmail.value.isNotEmpty()
+            || registerPassword.value.isNotEmpty()
+            || registerConfirmPassword.value.isNotEmpty()) {
+            if (registerPassword.value == registerConfirmPassword.value) {
+                pagerState.animateScrollToPage(1)
+                errorEmailPasswordEmpty.value = false
+                errorPasswordsNoMatch.value = false
             } else {
-                //TODO: Add error message
+                errorPasswordsNoMatch.value = true
             }
         } else {
-            //TODO: Add error message
+            errorEmailPasswordEmpty.value = true
+        }
+    }
+
+    fun registerUser(){
+        errorRegisterInfoEmpty.value = false
+        errorAgeCharInvalid.value = false
+        errorOverAge.value = false
+        if (registerName.value.isNotEmpty()
+            && registerAge.value.isNotEmpty()
+            && registerCountryOrigin.value.isNotEmpty()
+            && registerCurrentLocation.value.isNotEmpty()
+            && registerCurrentLocation.value != "City, Country"){
+            if (!registerAge.value.contains(",")
+                || !registerAge.value.contains(".")
+                || !registerAge.value.contains("-")
+                || !registerAge.value.contains(" ")){
+                if (registerAge.value.toInt() in 1..99){
+
+                    errorRegisterInfoEmpty.value = false
+                    errorAgeCharInvalid.value = false
+                    errorOverAge.value = false
+                    authRepository.registerUser(registerEmail.value, registerPassword.value)
+                    val route = Screens.VerifyScreen.route
+                    onNavigation.navigate(route)
+
+                } else {
+                    errorOverAge.value = true
+                }
+            } else {
+                errorAgeCharInvalid.value = true
+            }
+        } else {
+            errorRegisterInfoEmpty.value = true
         }
     }
 
@@ -169,6 +203,7 @@ class AuthViewModel constructor(
     }
 
     fun goToSignInScreen(){
+
         val route = Screens.LoginScreen.route
         onNavigation.navigate(route)
     }
@@ -201,25 +236,19 @@ class AuthViewModel constructor(
 
     @SuppressLint("MissingPermission")
     fun getCurrentLocation(context: Context){
-//        locationEngine = LocationEngineProvider.getBestLocationEngine(context)
-        println("Checking current location")
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
         if (checkPermissions(context)){
-            println("Just checked permissions")
             if(isLocationEnabled(context)){
-                println("Just saw location enabled is true")
                 var cityName: String = "City, Country"
                 fusedLocationProviderClient.getCurrentLocation(100, null).addOnCompleteListener { task ->
-                    println("We got it boyz!!!")
                     val location: Location? = task.result
 
                     if(location != null){
                         userCoordinates = LatLng(location.latitude, location.longitude)
-                        println("The user's position is: ${userCoordinates.latitude} and ${userCoordinates.longitude}")
 
                         val geoCoder = Geocoder(context, Locale.getDefault())
-                        val address = geoCoder.getFromLocation(location.latitude, location.longitude,3)//getFromLocation(lat,long,1)
+                        val address = geoCoder.getFromLocation(location.latitude, location.longitude,3)
                         if(address != null){
                             if(address[0] != null) {
                                 userCoordinates = LatLng(address[0].latitude, address[0].longitude)
@@ -255,7 +284,6 @@ class AuthViewModel constructor(
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            println("check permissions is true")
             return true
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -266,7 +294,6 @@ class AuthViewModel constructor(
             // for ActivityCompat#requestPermissions for more details.
 //            return
         }
-        println("check permissions is FALSE")
         return false
     }
 
