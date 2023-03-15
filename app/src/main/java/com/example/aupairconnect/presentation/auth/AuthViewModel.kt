@@ -3,23 +3,34 @@ package com.example.aupairconnect.presentation.auth
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.ContentResolver
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.os.FileUtils
 import android.util.Log
+import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.cognito.exceptions.service.UserNotConfirmedException
 import com.amplifyframework.core.Amplify
-import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
 import com.example.aupairconnect.graphs.Graph
+import com.example.aupairconnect.repositories.AuthRepository
+import com.example.aupairconnect.repositories.S3Repository
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -29,12 +40,14 @@ import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import kotlinx.coroutines.*
+import java.io.*
 import java.util.*
 
 
 class AuthViewModel constructor(
     private val onNavigation: NavHostController,
     private val authRepository: AuthRepository,
+    private val s3Repository: S3Repository
 ) : ViewModel() {
 
     // TODO: Put variables in viewModel
@@ -46,6 +59,7 @@ class AuthViewModel constructor(
     val registerPassword = mutableStateOf("")
     val registerConfirmPassword = mutableStateOf("")
 
+    var selectedImageUri = mutableStateOf<Uri?>(null)
     val registerName = mutableStateOf("")
     val registerAge = mutableStateOf("")
     val registerCountryOrigin = mutableStateOf("")
@@ -54,6 +68,7 @@ class AuthViewModel constructor(
     var signInSuccessful = mutableStateOf(false)
     var userNotConfirmedFailure = mutableStateOf(false)
     var userEmail: String = ""
+//    lateinit var profileImage :ImageView
 
     // LOCATION SERVICE VARIABLES
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -83,11 +98,15 @@ class AuthViewModel constructor(
     var errorAgeCharInvalid = mutableStateOf(false)
     var errorOverAge = mutableStateOf(false)
 
+
+    private var tempFile: File? = null;
+    private val REQUEST_EXTERNAL_STORAGE = 1
+    private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+
     fun getCurrentUser(){
         CoroutineScope(Dispatchers.IO).launch {
             authRepository.getCurrentUser()
         }
-//        return Amplify.Auth.getCurrentUser({Log.i("AuthCurrentUser", "Current User is: $it")},{Log.e ("AuthCurrentUser", "Couldn't retrieve current user: ", it) })
     }
 
     fun signIn(email:String, password:String) {
@@ -151,7 +170,7 @@ class AuthViewModel constructor(
         }
     }
 
-    fun registerUser(){
+    fun registerUser(context: Context){
         errorRegisterInfoEmpty.value = false
         errorAgeCharInvalid.value = false
         errorOverAge.value = false
@@ -170,7 +189,9 @@ class AuthViewModel constructor(
                     errorAgeCharInvalid.value = false
                     errorOverAge.value = false
                     CoroutineScope(Dispatchers.IO).launch {
+                        System.out.println("We are ABOUT to upload the photo")
                         authRepository.registerUser(registerEmail.value, registerPassword.value)
+//                        uploadProfilePicture(context)
                     }
                     val route = Screens.VerifyScreen.route
                     onNavigation.navigate(route)
@@ -203,10 +224,51 @@ class AuthViewModel constructor(
     }
 
     fun goToSignInScreen(){
-
         val route = Screens.LoginScreen.route
         onNavigation.navigate(route)
     }
+
+//    @RequiresApi(Build.VERSION_CODES.Q)
+//    suspend fun uploadProfilePicture(context: Context){
+//
+//        var image: Bitmap? = null
+////                image = MediaStore.Images.Media.getBitmap()//getBitmap(contentResolver, imageUri)
+//        val contentResolver: ContentResolver = context.contentResolver
+//        val source = ImageDecoder.createSource(contentResolver, selectedImageUri.value!!)
+//        val bitmap = ImageDecoder.decodeBitmap(source)
+//
+//        var filex: File? = null
+//        filex = File(context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS).toString() + File.separator + "images.jpeg")
+////        withContext(Dispatchers.IO) {
+////            filex.createNewFile()
+////        }
+//        println("YESSSSS&&^^&***&&&&&&&&&&********************")
+//        println(filex.absoluteFile.toString())
+//
+//        try {
+//            filex.createNewFile()
+//        } catch (e:IOException) {
+//            e.printStackTrace()
+//        }
+//
+//
+//        println("*****We got passed file creation")
+//
+//
+//        //Convert bitmap to byte array
+//        val bos = ByteArrayOutputStream()
+//        bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos) // YOU can also save it in JPEG
+//        val bitmapdata = bos.toByteArray()
+//
+//        //write the bytes in file
+//        val fos = FileOutputStream(filex)
+//        fos.write(bitmapdata)
+//        fos.flush()
+//        fos.close()
+//        println("!!!!!Sent it to S3!!!!!!********")
+//        s3Repository.uploadRegisterProfile("examplefilex", filex)
+//
+//    }
 
     // region LOCATION PERMISSIONS
 
@@ -304,5 +366,53 @@ class AuthViewModel constructor(
     private fun requestPermission(context: Context){
         ActivityCompat.requestPermissions(context as Activity, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), PERMISSION_REQUEST_ACCESS_LOCATION)
     }
+
+    //STORAGE PERMISSIONS
+    fun checkStoragePermissions(context: Context){
+        println("Checking Permissions**********")
+        val permission = ActivityCompat.checkSelfPermission(
+            context as Activity,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+            )
+        }
+    }
+
+    //HELPER METHODS
+
+    private fun copyStreamToFile(inputStream: InputStream, outputFile: File) {
+        inputStream.use { input ->
+            val outputStream = FileOutputStream(outputFile)
+            outputStream.use { output ->
+                val buffer = ByteArray(4 * 1024) // buffer size
+                while (true) {
+                    val byteCount = input.read(buffer)
+                    if (byteCount < 0) break
+                    output.write(buffer, 0, byteCount)
+                }
+                output.flush()
+                output.close()
+            }
+        }
+    }
+
+//    fun createTmpFileFromUri(context: Context, uri: Uri, fileName: String): File? {
+//        return try {
+//            val stream = context.contentResolver.openInputStream(uri)
+//            val file = File.createTempFile(fileName, "", context.cacheDir)
+//            org.apache.commons.io.FileUtils.copyInputStreamToFile(stream,file)
+//            file
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            null
+//        }
+//    }
 
 }

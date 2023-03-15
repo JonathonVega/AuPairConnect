@@ -16,12 +16,9 @@ class MyAmplifyApp: Application() {
 
         try {
             Amplify.addPlugin(AWSCognitoAuthPlugin())
-            Amplify.configure(applicationContext)
-            Amplify.addPlugin(AWSApiPlugin())
-            Amplify.configure(applicationContext)
-            Amplify.addPlugin(AWSDataStorePlugin())
-            Amplify.configure(applicationContext)
+//            Amplify.addPlugin(AWSDataStorePlugin())
             Amplify.addPlugin(AWSS3StoragePlugin())
+            Amplify.addPlugin(AWSApiPlugin())
             Amplify.configure(applicationContext)
             Log.i("MyAmplifyApp", "Initialized Amplify")
         } catch (error: AmplifyException) {

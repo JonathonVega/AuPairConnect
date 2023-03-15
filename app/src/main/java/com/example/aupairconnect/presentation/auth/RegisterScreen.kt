@@ -1,9 +1,14 @@
 package com.example.aupairconnect
 
-import android.net.Uri
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,14 +43,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import androidx.core.net.toFile
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.aupairconnect.presentation.ui.theme.ACTheme
 import com.example.aupairconnect.presentation.auth.AuthViewModel
+import com.example.aupairconnect.presentation.ui.theme.ACTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -54,10 +62,10 @@ fun RegisterScreen(
     viewModel: AuthViewModel
 ){
 
-    var selectedImageUri = remember { mutableStateOf<Uri?>(null) }
+    val localContext = LocalContext.current
     val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri -> selectedImageUri.value = uri }
+        onResult = { uri -> viewModel.selectedImageUri.value = uri }
     )
 
     var passwordVisibility = remember { mutableStateOf(false) }
@@ -155,64 +163,66 @@ fun RegisterScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
 
-                    if(selectedImageUri.value != null){
-                        Box(contentAlignment = Alignment.BottomEnd) {
-                            AsyncImage(
-                                model = selectedImageUri.value,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .border(
-                                        border = BorderStroke(1.dp, color = Color.Black),
-                                        shape = CircleShape
-                                    )
-                                    .width(150.dp)
-                                    .height(150.dp)
-                                    .clip(shape = CircleShape)
-                                    .clickable {
-                                        singlePhotoPickerLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                        )
-                                    }
-                            )
-                            Box(modifier = Modifier
-                                .padding(1.dp)
-                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
-                                Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
-                                    contentDescription = "edit icon",
-                                    modifier = Modifier.size(30.dp))
-                                
-                            }
-                        }
-
-                    } else {
-                        Box(contentAlignment = Alignment.BottomEnd) {
-                            androidx.compose.foundation.Image(
-                                painter = painterResource(id = R.drawable.baseline_person_24),
-                                contentDescription = "Image",
-                                modifier = Modifier
-                                    .border(
-                                        border = BorderStroke(1.dp, color = Color.Black),
-                                        shape = CircleShape
-                                    )
-                                    .width(150.dp)
-                                    .height(150.dp)
-                                    .clip(shape = CircleShape)
-                                    .clickable {
-                                        singlePhotoPickerLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                        )
-                                    }
-                            )
-                            Box(modifier = Modifier
-                                .padding(1.dp)
-                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
-                                Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
-                                    contentDescription = "edit icon",
-                                    modifier = Modifier.size(30.dp))
-                            }
-                        }
-                    }
+//                    if(viewModel.selectedImageUri.value != null){
+//                        Box(contentAlignment = Alignment.BottomEnd) {
+//                            AsyncImage(
+//                                model = viewModel.selectedImageUri.value,
+//                                contentDescription = null,
+//                                contentScale = ContentScale.Crop,
+//                                modifier = Modifier
+//                                    .border(
+//                                        border = BorderStroke(1.dp, color = Color.Black),
+//                                        shape = CircleShape
+//                                    )
+//                                    .width(150.dp)
+//                                    .height(150.dp)
+//                                    .clip(shape = CircleShape)
+//                                    .clickable {
+//                                        singlePhotoPickerLauncher.launch(
+//                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//                                        )
+//                                        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//                                    }
+//                            )
+//                            Box(modifier = Modifier
+//                                .padding(1.dp)
+//                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
+//                                Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
+//                                    contentDescription = "edit icon",
+//                                    modifier = Modifier.size(30.dp))
+//
+//                            }
+//                        }
+//
+//                    } else {
+//                        Box(contentAlignment = Alignment.BottomEnd) {
+//                            androidx.compose.foundation.Image(
+//                                painter = painterResource(id = R.drawable.baseline_person_24),
+//                                contentDescription = "Image",
+//                                modifier = Modifier
+//                                    .border(
+//                                        border = BorderStroke(1.dp, color = Color.Black),
+//                                        shape = CircleShape
+//                                    )
+//                                    .width(150.dp)
+//                                    .height(150.dp)
+//                                    .clip(shape = CircleShape)
+//                                    .clickable {
+//                                        viewModel.checkStoragePermissions(context)
+//                                        singlePhotoPickerLauncher.launch(
+//                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//                                        )
+//                                    }
+//                            )
+//                            Box(modifier = Modifier
+//                                .padding(1.dp)
+//                                .border(2.dp, Color.Black, shape = RectangleShape), contentAlignment = Alignment.CenterEnd) {
+//                                Icon(painter = painterResource(id = R.drawable.baseline_edit_24),
+//                                    contentDescription = "edit icon",
+//                                    modifier = Modifier.size(30.dp))
+//                            }
+//                        }
+//                    }
 
 
                     TextField(value = viewModel.registerName.value,
@@ -257,9 +267,12 @@ fun RegisterScreen(
                         Button(onClick = {
                             if(viewModel.registerPassword.value == viewModel.registerConfirmPassword.value){
                                 //TODO: Put call to AWS into viewModel
-                                viewModel.registerUser()
 
-
+//                                Glide.with(context)
+//                                    .load(File(viewModel.selectedImageUri.value!!.path))
+////                                    .transform(CircleTransform(..))
+//                                .into(viewModel.profileImage);
+                                viewModel.registerUser(context)
                             }
                         }){
                             Text(text = "Sign Up")
