@@ -30,7 +30,9 @@ fun ProfileScreen(
     //TODO: logoutState seems useless. Read later and delete
     val logoutState = remember{ mutableStateOf(false) }
 
-    Column(modifier = Modifier.padding(start = 75.dp, end = 75.dp).fillMaxSize(),
+    Column(modifier = Modifier
+        .padding(start = 75.dp, end = 75.dp)
+        .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(10.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         ProfileImage()
@@ -48,8 +50,11 @@ fun ProfileScreen(
         }) {
             Text(text = "Log out")
             if(logoutState.value){
-                LogOut()
+                viewModel.signOut(LocalContext.current)
             }
+        }
+        Button(onClick = { viewModel.getCurrentUser() }) {
+            Text(text = "Check current user")
         }
     }
 }

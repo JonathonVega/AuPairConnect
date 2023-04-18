@@ -1,19 +1,21 @@
-type User {
-    id: ID!
-    name: String!
-    email: String!
+type User
+    @model
+    @auth(rules: [{allow: owner, operations:[create, delete, update, read]}]){
+
+    id: ID
+    name: String
+    email: String
+    status: String
     age: Int
-    gender: String
-    bio:String
-    isExAupair: Boolean
-    originLocation: String
-    currentLocation: Coordinates
-    createdAt: String
+    bio: String
+    nationality: String
+    currentLocation: String
+    createdAt: AWSDateTime
 }
 
 type Coordinates {
-    latitude: Float!
-    longitude: Float!
+    latitude: Float
+    longitude: Float
 }
 
 type Chatroom {
@@ -29,14 +31,3 @@ type Message {
     createdAt: String
 }
 
-type Mutation {
-    addMessage(text:String!, userId: Int!, chatroomId: ID!): Message
-}
-
-type Query {
-    chatrooms: [Chatroom]
-    chatroom(id:Int): Chatroom
-    messages(chatroomId:Int): [Message]
-    Users(chatroomId: Int): [User]
-    user(id:Int): User
-}

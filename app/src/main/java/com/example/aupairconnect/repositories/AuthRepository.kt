@@ -5,6 +5,8 @@ import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.auth.options.AuthSignUpOptions
+import com.amplifyframework.datastore.DataStoreException
+import com.amplifyframework.datastore.generated.model.User
 //import com.amplifyframework.core.Amplify
 import com.amplifyframework.kotlin.core.Amplify
 
@@ -21,12 +23,24 @@ class AuthRepository() {
         }
     }
 
+    suspend fun getUserId(): String{
+        var result = ""
+        try {
+            val userId = Amplify.Auth.getCurrentUser().userId
+            Log.i("AuthQuickstart", "Current user details are: $result")
+            result = userId
+        } catch (error: Exception) {
+            Log.e("AuthQuickstart", "getCurrentUser failed with an exception: $error")
+        }
+        return result
+    }
+
     suspend fun registerUser(email:String, password: String){
         val options = AuthSignUpOptions.builder()
-            .userAttribute(AuthUserAttributeKey.email(), "my@email.com")
+            .userAttribute(AuthUserAttributeKey.email(), email)
             .build()
         try {
-            val result = Amplify.Auth.signUp("username", "Password123", options)
+            val result = Amplify.Auth.signUp(email, password, options)
             Log.i("AuthQuickStart", "Result: $result")
         } catch (error: AuthException) {
             Log.e("AuthQuickStart", "Sign up failed", error)
@@ -35,7 +49,6 @@ class AuthRepository() {
 
     suspend fun confirmSignUp(email: String, code:String){
         try {
-            val code = "code you received via email"
             val result = Amplify.Auth.confirmSignUp(email, code)
             if (result.isSignUpComplete) {
                 Log.i("AuthQuickstart", "Signup confirmed")
@@ -47,10 +60,39 @@ class AuthRepository() {
         }
     }
 
+    suspend fun firstTimeSignIn(email: String, password: String, name: String, status: String, age:String, registerNationality:String, registerCurrentLocation: String): Boolean{
+        try {
+            val result = Amplify.Auth.signIn(email, password)
+            if (result.isSignedIn) {
+                Log.i("AuthQuickstart", "Sign in succeeded")
+                val newUser = User.builder()
+                    .name(name)
+                    .email(email)
+                    .age(age.toInt())
+                    .status(status)
+                    .nationality(registerNationality)
+                    .currentLocation(registerCurrentLocation)
+                    .build()
+                try {
+                    Amplify.DataStore.save(newUser)
+                    Log.i("MyAmplifyApp", "Saved a new user successfully")
+                } catch (error: DataStoreException) {
+                    Log.e("MyAmplifyApp", "Error saving user", error)
+                }
+            } else {
+                Log.e("AuthQuickstart", "Sign in not complete")
+            }
+        } catch (error: AuthException) {
+            Log.e("AuthQuickstart", "Sign in failed", error)
+            return false
+        }
+        return false
+    }
+
     suspend fun signIn(email: String, password: String): Boolean{
 
         try {
-            val result = Amplify.Auth.signIn("username", "password")
+            val result = Amplify.Auth.signIn(email, password)
             if (result.isSignedIn) {
                 Log.i("AuthQuickstart", "Sign in succeeded")
             } else {

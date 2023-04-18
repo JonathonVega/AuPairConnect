@@ -14,6 +14,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.app.ActivityCompat
 import androidx.core.net.toFile
 import androidx.navigation.NavHostController
@@ -224,7 +226,7 @@ fun RegisterScreen(
 //                        }
 //                    }
 
-
+                    AupairSegmentedButtons(viewModel)
                     TextField(value = viewModel.registerName.value,
                         onValueChange = {viewModel.registerName.value = it},
                         colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
@@ -239,21 +241,35 @@ fun RegisterScreen(
                     Row(horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(vertical = 0.dp)) {
-                        TextField(modifier = Modifier
-                            .weight(3f)
-                            .padding(end = 15.dp),
-                            value = viewModel.registerCurrentLocation.value,
-                            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
+//                        TextField(modifier = Modifier
+//                            .weight(3f)
+//                            .padding(end = 15.dp),
+//                            value = viewModel.registerCurrentLocation.value,
+//                            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
+//                            onValueChange = {viewModel.registerCurrentLocation.value = it},
+//                            enabled = false,
+//                            label = {Text(text = "Current Location?")},
+//                            trailingIcon = {
+//                                val image = Icons.Filled.Place
+//                                IconButton(modifier = Modifier.size(50.dp),
+//                                    onClick = {viewModel.getCurrentLocation(context)}){
+//                                    androidx.compose.material.Icon(imageVector = image, "Current Location", tint = ACTheme)
+//                                }
+//                            })
+                        TextField(value = viewModel.registerCurrentLocation.value,
                             onValueChange = {viewModel.registerCurrentLocation.value = it},
-                            enabled = false,
                             label = {Text(text = "Current Location?")},
+                            colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
+//                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            enabled = false,
                             trailingIcon = {
                                 val image = Icons.Filled.Place
-                                IconButton(modifier = Modifier.size(50.dp),
+                                IconButton(
                                     onClick = {viewModel.getCurrentLocation(context)}){
                                     androidx.compose.material.Icon(imageVector = image, "Current Location", tint = ACTheme)
                                 }
-                            })
+                            }
+                        )
                     }
                     Row(modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween){
@@ -342,9 +358,9 @@ fun OriginCountryDropdown(viewModel: AuthViewModel){
     ) {
         TextField(
             readOnly = true,
-            value = viewModel.registerCountryOrigin.value,
+            value = viewModel.registerNationality.value,
             onValueChange = { },
-            label = { Text("Select Your Country") },
+            label = { Text("Select Your Nationality") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(
                     expanded = expanded.value
@@ -361,12 +377,89 @@ fun OriginCountryDropdown(viewModel: AuthViewModel){
             viewModel.COUNTRY_LIST.forEach { country ->
                 DropdownMenuItem(
                     onClick = {
-                        viewModel.registerCountryOrigin.value = country
+                        viewModel.registerNationality.value = country
                         expanded.value = false
                     }
                 ) {
                     Text(text = country)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun AupairSegmentedButtons(viewModel: AuthViewModel){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 20.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        val cornerRadius = 16.dp
+        var selectedIndex = remember { mutableStateOf(-1) }
+
+        val itemsList = listOf<String>("Aupair", "Ex-Aupair")
+
+        itemsList.forEachIndexed { index, item ->
+
+            OutlinedButton(
+                onClick = { viewModel.registerStatus.value = item
+                          selectedIndex.value = index},
+                modifier = when (index) {
+                    0 ->
+                        Modifier
+                            .offset(0.dp, 0.dp)
+                            .zIndex(if (selectedIndex.value == index) 1f else 0f)
+                            .width(120.dp)
+                            .height(40.dp)
+                    else ->
+                        Modifier
+                            .offset((-1 * index).dp, 0.dp)
+                            .zIndex(if (selectedIndex.value == index) 1f else 0f)
+                            .width(120.dp)
+                            .height(40.dp)
+                },
+                shape = when (index) {
+                    0 -> RoundedCornerShape(
+                        topStart = cornerRadius,
+                        topEnd = 0.dp,
+                        bottomStart = cornerRadius,
+                        bottomEnd = 0.dp
+                    )
+                    itemsList.size - 1 -> RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = cornerRadius,
+                        bottomStart = 0.dp,
+                        bottomEnd = cornerRadius
+                    )
+                    else -> RoundedCornerShape(
+                        topStart = 0.dp,
+                        topEnd = 0.dp,
+                        bottomStart = 0.dp,
+                        bottomEnd = 0.dp
+                    )
+                },
+                border = BorderStroke(
+                    1.dp, if (selectedIndex.value == index) {
+                        ACTheme
+                    } else {
+                        ACTheme.copy(alpha = 0.75f)
+                    }
+                ),
+                colors = if (selectedIndex.value == index) {
+                    ButtonDefaults.outlinedButtonColors(
+                        backgroundColor = ACTheme.copy(alpha = 0.5f),
+                        contentColor = ACTheme
+                    )
+                } else {
+                    ButtonDefaults.outlinedButtonColors(
+                        backgroundColor = Color.White,
+                        contentColor = ACTheme
+                    )
+                }
+            ) {
+                Text(item)
             }
         }
     }

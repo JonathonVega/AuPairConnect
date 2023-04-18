@@ -3,29 +3,26 @@ package com.example.aupairconnect.presentation.auth
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentResolver
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
-import android.os.FileUtils
 import android.util.Log
-import android.widget.ImageView
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.cognito.exceptions.service.UserNotConfirmedException
-import com.amplifyframework.core.Amplify
+//import com.amplifyframework.core.Amplify
+import com.amplifyframework.kotlin.core.Amplify
+import com.amplifyframework.core.model.Model
+import com.amplifyframework.datastore.DataStoreException
+import com.amplifyframework.datastore.DataStoreItemChange
+import com.amplifyframework.datastore.generated.model.User
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
 import com.example.aupairconnect.graphs.Graph
@@ -60,10 +57,11 @@ class AuthViewModel constructor(
     val registerConfirmPassword = mutableStateOf("")
 
     var selectedImageUri = mutableStateOf<Uri?>(null)
+    val registerStatus = mutableStateOf("")
     val registerName = mutableStateOf("")
     val registerAge = mutableStateOf("")
-    val registerCountryOrigin = mutableStateOf("")
-    val registerCurrentLocation = mutableStateOf("City, Country")
+    val registerNationality = mutableStateOf("")
+    val registerCurrentLocation = mutableStateOf("")
 
     var signInSuccessful = mutableStateOf(false)
     var userNotConfirmedFailure = mutableStateOf(false)
@@ -106,46 +104,43 @@ class AuthViewModel constructor(
     fun getCurrentUser(){
         CoroutineScope(Dispatchers.IO).launch {
             authRepository.getCurrentUser()
+            authRepository.signOut()
         }
     }
 
     fun signIn(email:String, password:String) {
 
         CoroutineScope(Dispatchers.IO).launch {
-            withContext(Dispatchers.IO){
-                val result = Amplify.Auth.signIn(email, password,
-                    { result ->
-                        if (result.isSignedIn) {
-                            Log.i("AuthQuickstart", "Sign in succeeded")
-                            signInSuccessful.value = true
-                        } else {
-                            Log.i("AuthQuickstart", "Sign in not complete")
-                            signInSuccessful.value = false
-                        }
-                    },
-                    {error ->
-                        when(error){
-                            is UserNotConfirmedException -> {
-                                Log.i("UserNotConfirmedException", error.toString())
-                                userNotConfirmedFailure.value = true
-                            }
-                            is AuthException -> {
-                                Log.e("AuthQuickstart", error.toString())
-                            }
-                        }
+            try {
+                val result = Amplify.Auth.signIn(email, password)
+                if (result.isSignedIn) {
+                        Log.i("AuthQuickstart", "Sign in succeeded")
+                        signInSuccessful.value = true
+                    } else {
+                        Log.i("AuthQuickstart", "Sign in not complete")
+                        signInSuccessful.value = false
                     }
-                )
-                delay(2000)
-                withContext(Dispatchers.Main){
-                    if(signInSuccessful.value){
-                        onNavigation.popBackStack()
-                        onNavigation.navigate(Graph.HOME)
+            } catch (error: AuthException){
+                when(error){
+                    is UserNotConfirmedException -> {
+                        Log.i("UserNotConfirmedException", error.toString())
+                        userNotConfirmedFailure.value = true
                     }
-                    if(userNotConfirmedFailure.value){
-                        userEmail = email
-                        val route = Screens.VerifyScreen.route
-                        onNavigation.navigate(route)
+                    is AuthException -> {
+                        Log.e("AuthQuickstart", error.toString())
                     }
+                }
+            }
+            delay(2000)
+            withContext(Dispatchers.Main){
+                if(signInSuccessful.value){
+                    onNavigation.popBackStack()
+                    onNavigation.navigate(Graph.HOME)
+                }
+                if(userNotConfirmedFailure.value){
+                    userEmail = email
+                    val route = Screens.VerifyScreen.route
+                    onNavigation.navigate(route)
                 }
             }
         }
@@ -174,11 +169,12 @@ class AuthViewModel constructor(
         errorRegisterInfoEmpty.value = false
         errorAgeCharInvalid.value = false
         errorOverAge.value = false
-        if (registerName.value.isNotEmpty()
+        if (registerStatus.value.isNotEmpty()
+            && registerName.value.isNotEmpty()
             && registerAge.value.isNotEmpty()
-            && registerCountryOrigin.value.isNotEmpty()
+            && registerNationality.value.isNotEmpty()
             && registerCurrentLocation.value.isNotEmpty()
-            && registerCurrentLocation.value != "City, Country"){
+            && registerCurrentLocation.value != ""){
             if (!registerAge.value.contains(",")
                 || !registerAge.value.contains(".")
                 || !registerAge.value.contains("-")
@@ -189,9 +185,9 @@ class AuthViewModel constructor(
                     errorAgeCharInvalid.value = false
                     errorOverAge.value = false
                     CoroutineScope(Dispatchers.IO).launch {
-                        System.out.println("We are ABOUT to upload the photo")
                         authRepository.registerUser(registerEmail.value, registerPassword.value)
 //                        uploadProfilePicture(context)
+
                     }
                     val route = Screens.VerifyScreen.route
                     onNavigation.navigate(route)
@@ -209,13 +205,22 @@ class AuthViewModel constructor(
 
     fun confirmSignUp(code:String){
         CoroutineScope(Dispatchers.IO).launch {
-            authRepository.confirmSignUp(userEmail, code)
+            authRepository.confirmSignUp(registerEmail.value, code)
+            authRepository.firstTimeSignIn(registerEmail.value, registerPassword.value, registerName.value, registerStatus.value, registerAge.value, registerNationality.value, registerCurrentLocation.value)
         }
+        onNavigation.popBackStack()
+        onNavigation.navigate(Graph.HOME)
     }
 
-    fun resendVerificationCode(){
-        Amplify.Auth.resendSignUpCode(userEmail,
-        { Log.i("AuthDemo", "Code was sent again: $it") }, {Log.e("AuthDemo", "Failed to resend code", it) })
+    suspend fun resendVerificationCode(){
+        CoroutineScope(Dispatchers.IO).launch{
+        }
+        try {
+            val result = Amplify.Auth.resendSignUpCode(userEmail)
+            Log.i("AuthDemo", "Code was sent again: $result.")
+        } catch (error: AuthException){
+            Log.e("AuthDemo", "Failed to resend code.", error)
+        }
     }
 
     fun goToSignUpScreen(){
@@ -316,7 +321,7 @@ class AuthViewModel constructor(
                                 userCoordinates = LatLng(address[0].latitude, address[0].longitude)
                                 println("${address[0].locality}, ${address[0].countryName}")
                                 println(address.toString())
-                                registerCurrentLocation.value = "${address[0].locality}, ${address[0].countryName}"
+                                registerCurrentLocation.value = "${address[0].locality}, ${address[0].adminArea}, ${address[0].countryName}"
                             }
                         }
                     }
