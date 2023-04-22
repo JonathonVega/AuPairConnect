@@ -9,6 +9,7 @@ import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.presentation.chat.ChatViewModel
 import com.example.aupairconnect.presentation.discover.DiscoverViewModel
 import com.example.aupairconnect.presentation.profile.ProfileViewModel
+import com.example.aupairconnect.repositories.DatastoreRepository
 
 @Composable
 fun HomeNavGraph(navController: NavHostController){
@@ -18,6 +19,7 @@ fun HomeNavGraph(navController: NavHostController){
         startDestination =  BottomNavigationItem.Discover.route
     ){
         val authRepository = AuthRepository()
+        val datastoreRepository = DatastoreRepository()
         composable(route = BottomNavigationItem.Discover.route){
             val discoverViewModel = DiscoverViewModel(navController)
             DiscoverScreen(navController, discoverViewModel)
@@ -27,7 +29,7 @@ fun HomeNavGraph(navController: NavHostController){
             ChatScreen(navController, chatViewModel)
         }
         composable(route = BottomNavigationItem.Profile.route){
-            val profileViewModel = ProfileViewModel(navController, authRepository)
+            val profileViewModel = ProfileViewModel(navController, authRepository, datastoreRepository)
             ProfileScreen(navController, profileViewModel)
         }
     }

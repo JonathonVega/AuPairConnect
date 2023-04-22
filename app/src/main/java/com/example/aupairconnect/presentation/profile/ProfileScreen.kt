@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -19,6 +21,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.aupairconnect.domain.model.User
 import com.example.aupairconnect.presentation.profile.ProfileViewModel
 
 @Composable
@@ -29,6 +32,14 @@ fun ProfileScreen(
 
     //TODO: logoutState seems useless. Read later and delete
     val logoutState = remember{ mutableStateOf(false) }
+    val context = LocalContext.current
+    val datastore = StoreUserEmail(context)
+    val savedEmail = datastore.getEmail.collectAsState(initial = "")
+//    lateinit var userInfo :User
+
+    LaunchedEffect(savedEmail.value.isEmpty()){
+        viewModel.getUserData(savedEmail.value)
+    }
 
     Column(modifier = Modifier
         .padding(start = 75.dp, end = 75.dp)
@@ -38,9 +49,9 @@ fun ProfileScreen(
         ProfileImage()
 //        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
         Text(text = "This is the Profile Screen", fontSize = 20.sp)
-        Text(text = "John Doe", fontSize = 20.sp)
+        Text(text = viewModel.userName.value, fontSize = 20.sp)
         Text(text = "23", fontSize = 20.sp)
-        Text(text = "From: Mexico City, Mexico", fontSize = 20.sp)
+        Text(text = "From: " , fontSize = 20.sp)
         Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp)
         Button(onClick = {
 
@@ -53,9 +64,10 @@ fun ProfileScreen(
                 viewModel.signOut(LocalContext.current)
             }
         }
-        Button(onClick = { viewModel.getCurrentUser() }) {
-            Text(text = "Check current user")
-        }
+        //TODO: Delete the commented code if not needed anymore
+//        Button(onClick = { viewModel.getCurrentUser() }) {
+//            Text(text = "Check current user")
+//        }
     }
 }
 

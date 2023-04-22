@@ -9,12 +9,22 @@ import com.amplifyframework.datastore.DataStoreException
 import com.amplifyframework.datastore.generated.model.User
 //import com.amplifyframework.core.Amplify
 import com.amplifyframework.kotlin.core.Amplify
+import com.example.aupairconnect.graphs.Graph
 
 
 //TODO: Comment File entirely. May Return to it another time in the future
 class AuthRepository() {
 
     suspend fun getCurrentUser(){
+        try {
+            val result = Amplify.Auth.getCurrentUser()
+            Log.i("AuthQuickstart", "Current user details are: $result")
+        } catch (error: Exception) {
+            Log.e("AuthQuickstart", "getCurrentUser failed with an exception: $error")
+        }
+    }
+
+    suspend fun alreadySignedIn(){
         try {
             val result = Amplify.Auth.getCurrentUser()
             Log.i("AuthQuickstart", "Current user details are: $result")

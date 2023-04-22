@@ -1,5 +1,6 @@
 package com.example.aupairconnect
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.ClickableText
@@ -7,6 +8,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -14,6 +16,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.AnnotatedString
@@ -24,6 +27,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.amplifyframework.core.Amplify
 import com.example.aupairconnect.graphs.Graph
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
 import com.example.aupairconnect.presentation.auth.AuthViewModel
@@ -38,10 +42,18 @@ fun LoginScreen(
     val passwordValue = remember { mutableStateOf("") }
     var passwordVisibility = remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val context = LocalContext.current
+    val datastore = StoreUserEmail(context)
+    val savedEmail = datastore.getEmail.collectAsState(initial = "")
 
-    LaunchedEffect(viewModel.userNotConfirmedFailure){
+    LaunchedEffect(savedEmail.value.isEmpty()){
         println("userNotConfirmedFailure is: ${viewModel.userNotConfirmedFailure.value}")
-
+        println("saved email is ${savedEmail.value}")
+        Amplify.DataStore.start(
+            { Log.i("MyAmplifyApp", "DataStore started") },
+            { Log.e("MyAmplifyApp", "Error starting DataStore", it) }
+        )
+        viewModel.checkIfAlreadySignedIn(savedEmail.value)
     }
 
     Column(modifier = Modifier
@@ -80,7 +92,7 @@ fun LoginScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 40.dp),onClick = {
                 if(emailValue.value.isNotEmpty() && passwordValue.value.isNotEmpty()){
-                    viewModel.signIn(emailValue.value, passwordValue.value)
+                    viewModel.signIn(emailValue.value, passwordValue.value, context)
                 } else{
                     //TODO: Add warning text when sign in failed
                     println("The email and/or password is blank")

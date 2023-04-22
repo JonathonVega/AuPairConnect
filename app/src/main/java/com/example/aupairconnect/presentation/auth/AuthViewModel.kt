@@ -1,30 +1,34 @@
 package com.example.aupairconnect.presentation.auth
 
+//import com.amplifyframework.core.Amplify
+
 import android.Manifest
+import android.R
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.ContentValues.TAG
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
+import android.preference.PreferenceManager
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
+import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
+import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.cognito.exceptions.service.UserNotConfirmedException
-//import com.amplifyframework.core.Amplify
+import com.amplifyframework.auth.result.AuthSessionResult
 import com.amplifyframework.kotlin.core.Amplify
-import com.amplifyframework.core.model.Model
-import com.amplifyframework.datastore.DataStoreException
-import com.amplifyframework.datastore.DataStoreItemChange
-import com.amplifyframework.datastore.generated.model.User
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
+import com.example.aupairconnect.StoreUserEmail
 import com.example.aupairconnect.graphs.Graph
 import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.repositories.S3Repository
@@ -65,7 +69,9 @@ class AuthViewModel constructor(
 
     var signInSuccessful = mutableStateOf(false)
     var userNotConfirmedFailure = mutableStateOf(false)
+    var alreadySignedIn = mutableStateOf(false)
     var userEmail: String = ""
+    var verifyEmail: String = ""
 //    lateinit var profileImage :ImageView
 
     // LOCATION SERVICE VARIABLES
@@ -73,7 +79,6 @@ class AuthViewModel constructor(
     lateinit var permissionsManager: PermissionsManager
     var permissionsListener = getPermissionsListener()
     var userCoordinates = LatLng(0.0,0.0)
-
 
     val COUNTRY_LIST = arrayOf("Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas",
         "Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bermuda","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","British Virgin Islands","Brunei",
@@ -101,6 +106,14 @@ class AuthViewModel constructor(
     private val REQUEST_EXTERNAL_STORAGE = 1
     private val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.MANAGE_EXTERNAL_STORAGE)
 
+    fun checkIfAlreadySignedIn(email: String){
+        if(email.isNotEmpty()){
+            println("The already signed in email is $email")
+            onNavigation.popBackStack()
+            onNavigation.navigate(Graph.HOME)
+        }
+    }
+
     fun getCurrentUser(){
         CoroutineScope(Dispatchers.IO).launch {
             authRepository.getCurrentUser()
@@ -108,8 +121,7 @@ class AuthViewModel constructor(
         }
     }
 
-    fun signIn(email:String, password:String) {
-
+    fun signIn(email:String, password:String, context: Context) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val result = Amplify.Auth.signIn(email, password)
@@ -133,12 +145,19 @@ class AuthViewModel constructor(
             }
             delay(2000)
             withContext(Dispatchers.Main){
+                val datastore = StoreUserEmail(context)
+
                 if(signInSuccessful.value){
+                    datastore.saveEmail(email)
                     onNavigation.popBackStack()
                     onNavigation.navigate(Graph.HOME)
+
                 }
                 if(userNotConfirmedFailure.value){
                     userEmail = email
+                    datastore.saveEmail(email)
+
+                    verifyEmail = email
                     val route = Screens.VerifyScreen.route
                     onNavigation.navigate(route)
                 }
@@ -185,10 +204,14 @@ class AuthViewModel constructor(
                     errorAgeCharInvalid.value = false
                     errorOverAge.value = false
                     CoroutineScope(Dispatchers.IO).launch {
+                        //TODO: Handle when error occurs in aws call. Not just string validation
                         authRepository.registerUser(registerEmail.value, registerPassword.value)
 //                        uploadProfilePicture(context)
-
+                        val datastore = StoreUserEmail(context)
+                        datastore.saveEmail(registerEmail.value)
                     }
+
+                    verifyEmail = registerEmail.value
                     val route = Screens.VerifyScreen.route
                     onNavigation.navigate(route)
 
@@ -205,8 +228,8 @@ class AuthViewModel constructor(
 
     fun confirmSignUp(code:String){
         CoroutineScope(Dispatchers.IO).launch {
-            authRepository.confirmSignUp(registerEmail.value, code)
-            authRepository.firstTimeSignIn(registerEmail.value, registerPassword.value, registerName.value, registerStatus.value, registerAge.value, registerNationality.value, registerCurrentLocation.value)
+            authRepository.confirmSignUp(verifyEmail, code)
+            authRepository.firstTimeSignIn(verifyEmail, registerPassword.value, registerName.value, registerStatus.value, registerAge.value, registerNationality.value, registerCurrentLocation.value)
         }
         onNavigation.popBackStack()
         onNavigation.navigate(Graph.HOME)

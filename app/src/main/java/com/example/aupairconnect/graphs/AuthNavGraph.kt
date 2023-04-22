@@ -1,5 +1,6 @@
 package com.example.aupairconnect
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
@@ -19,7 +20,7 @@ fun NavGraphBuilder.authNavGraph(navController: NavHostController){
         val authRepository = AuthRepository()
         val s3Repository = S3Repository()
         val authViewModel = AuthViewModel(navController, authRepository, s3Repository)
-
+        
         composable(route = Screens.LoginScreen.route){
             LoginScreen(onNavigation = navController, viewModel = authViewModel)
         }

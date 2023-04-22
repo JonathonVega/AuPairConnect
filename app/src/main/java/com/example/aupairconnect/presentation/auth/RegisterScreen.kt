@@ -77,7 +77,7 @@ fun RegisterScreen(
     val pagerState = rememberPagerState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-
+    val datastore = StoreUserEmail(context)
 
     //TODO: Add loading spinner when getting current location
 
