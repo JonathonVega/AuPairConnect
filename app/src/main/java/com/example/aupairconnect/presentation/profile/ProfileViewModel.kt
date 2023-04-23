@@ -5,47 +5,55 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import com.amplifyframework.api.ApiException
 import com.amplifyframework.api.graphql.model.ModelQuery
-import com.amplifyframework.core.Amplify
-import com.amplifyframework.datastore.DataStoreException
+import com.amplifyframework.core.model.query.Where
+import com.amplifyframework.kotlin.core.Amplify
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.StoreUserEmail
-import com.example.aupairconnect.domain.model.User
+//import com.example.aupairconnect.domain.model.User
+import com.amplifyframework.datastore.generated.model.User
 import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.repositories.DatastoreRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-import aws.sdk.kotlin.services.dynamodb.DynamoDbClient
-import aws.sdk.kotlin.services.dynamodb.model.AttributeValue
-import aws.sdk.kotlin.services.dynamodb.model.QueryRequest
-import kotlin.system.exitProcess
 
 class ProfileViewModel constructor(
     private val onNavigation: NavHostController,
     private val authRepository: AuthRepository,
-    private val datastoreRepository: DatastoreRepository
+    private val datastoreRepository: DatastoreRepository,
+    private val userEmail: String
 ) : ViewModel() {
 
-    var user: User? = null
+//    var userEmail:String? = null
+    var userInfo: com.example.aupairconnect.domain.model.User? = null
     var userName = mutableStateOf("")
     var nationality = mutableStateOf("")
+    var age = mutableStateOf("")
 
-//    init {
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val user = datastoreRepository.getUserAccountData()
-//            user.name?.let {
-//                userName.value = it
-//            }
-//            user.nationality?.let{
-//                nationality.value = it
-//            }
-//        }
-//    }
+    init {
+        println("We will get the userdata from userEmail $userEmail!!!!!!!!")
+//        var userInfo: com.example.aupairconnect.domain.model.User?
+        val listOfUsers = mutableListOf<User>();
+        CoroutineScope(Dispatchers.IO).launch {
+            Amplify.DataStore.query(User::class, Where.matches(User.EMAIL.eq(userEmail)))
+                .catch { Log.e("MyAmplifyApp", "Query failed", it) }
+                .collect {
+                    Log.i("MyAmplifyApp", "User email in viewmodel: ${it.email}")
+                    val userData = com.example.aupairconnect.domain.model.User(it.name, it.age, it.nationality, it.currentLocation, it.status, it.bio)
+                    listOfUsers.add(it)
+                    userName.value = listOfUsers[0].name
+                    nationality.value = listOfUsers[0].nationality
+                    age.value = listOfUsers[0].age.toString()
+                    println("Now printing mutable ${userName.value}")
+//                    println("Now printing ${userInfo?.name}")
+                }
+        }
+        println("Did we get the userdata from viewmodel!!!!!!!****!")
+    }
 
     fun signOut(context: Context){
         CoroutineScope(Dispatchers.IO).launch {
@@ -59,65 +67,23 @@ class ProfileViewModel constructor(
     }
 
     fun getUserData(email: String) {
-        println("We will get the userdata!!!!!!!!")
-        Amplify.API.query(ModelQuery.get(User::class.java, email),
-            { Log.i("MyAmplifyApp", "Query results = ${(it.data as User).name}") },
-            { Log.e("MyAmplifyApp", "Query failed", it) }
-        );
-
+        println("We will get the userdata from viewmodel!!!!!!!!")
+//        var userInfo: com.example.aupairconnect.domain.model.User?
+        val listOfUsers = mutableListOf<User>();
+        CoroutineScope(Dispatchers.IO).launch {
+            Amplify.DataStore.query(User::class, Where.matches(User.EMAIL.eq(email)))
+                .catch { Log.e("MyAmplifyApp", "Query failed", it) }
+                .collect {
+                    Log.i("MyAmplifyApp", "User email in viewmodel: ${it.email}")
+                    val userData = com.example.aupairconnect.domain.model.User(it.name, it.age, it.nationality, it.currentLocation, it.status, it.bio)
+//                    userInfo = userData
+//                    userName.value = it.name
+                    listOfUsers.add(it)
+                    userName.value = listOfUsers[0].name
+                    println("Now printing mutable ${userName.value}")
+//                    println("Now printing ${userInfo?.name}")
+                }
+        }
+        println("Did we get the userdata from viewmodel!!!!!!!****!")
     }
-
-//    suspend fun queryDynTable(
-//        tableNameVal: String,
-//        partitionKeyName: String,
-//        partitionKeyVal: String,
-//        partitionAlias: String
-//    ): Int {
-//
-//        val attrNameAlias = mutableMapOf<String, String>()
-//        attrNameAlias[partitionAlias] = partitionKeyName
-//
-//        // Set up mapping of the partition name with the value.
-//        val attrValues = mutableMapOf<String, AttributeValue>()
-//        attrValues[":$partitionKeyName"] = AttributeValue.S(partitionKeyVal)
-//
-//        val request = QueryRequest {
-//            tableName = tableNameVal
-//            keyConditionExpression = "$partitionAlias = :$partitionKeyName"
-//            expressionAttributeNames = attrNameAlias
-//            this.expressionAttributeValues = attrValues
-//        }
-//
-//        DynamoDbClient { region = "us-east-1" }.use { ddb ->
-//            val response = ddb.query(request)
-//            return response.count
-//        }
-//    }
-//        CoroutineScope(Dispatchers.IO).launch {
-//            println("We will get the userdata!!!!!!!!")
-//
-//
-//            Amplify.DataStore.query(
-//                com.amplifyframework.datastore.generated.model.User::class.java,
-////            Where.matches(User.EMAIL.eq(email)),
-//                { users ->
-//                    if (users.hasNext()) {
-//                        val userModel = users.next()
-//                        println("Down to the core!!!!!&&&&******")
-//                        Log.i("MyAmplifyApp", "Post: $userModel")
-//                    }
-//                },
-//                { Log.e("MyAmplifyApp", "Query failed", it) }
-//            )
-////            datastoreRepository.getUserData(email)
-////            user = datastoreRepository.getUserAccountData(email)
-////            user?.name.let {
-////                if (it != null) {
-////                    userName.value = it
-////                }
-////            }
-////            println(userName.value)
-//            println("Did we start getting the userdata!!!!!!!!")
-//        }
-
 }

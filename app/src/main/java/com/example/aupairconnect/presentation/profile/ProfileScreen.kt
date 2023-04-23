@@ -33,13 +33,10 @@ fun ProfileScreen(
     //TODO: logoutState seems useless. Read later and delete
     val logoutState = remember{ mutableStateOf(false) }
     val context = LocalContext.current
-    val datastore = StoreUserEmail(context)
-    val savedEmail = datastore.getEmail.collectAsState(initial = "")
-//    lateinit var userInfo :User
-
-    LaunchedEffect(savedEmail.value.isEmpty()){
-        viewModel.getUserData(savedEmail.value)
-    }
+//    val datastore = StoreUserEmail(context)
+//    val savedEmail = datastore.getEmail.collectAsState(initial = "")
+//    viewModel.userEmail = savedEmail.value
+    var x:String?
 
     Column(modifier = Modifier
         .padding(start = 75.dp, end = 75.dp)
@@ -49,9 +46,15 @@ fun ProfileScreen(
         ProfileImage()
 //        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
         Text(text = "This is the Profile Screen", fontSize = 20.sp)
-        Text(text = viewModel.userName.value, fontSize = 20.sp)
-        Text(text = "23", fontSize = 20.sp)
-        Text(text = "From: " , fontSize = 20.sp)
+        println(viewModel.userName.value)
+//        if(viewModel.userName.value.isNotEmpty()){
+//            x = viewModel.userName.value
+//            println("on profile UI, we are getting $x")
+//            Text(text = "$x", fontSize = 20.sp)
+//        }
+        viewModel.userName.value.let { Text(text = it, fontSize = 20.sp) }
+        viewModel.userName.value.let { Text(text = "Age: $it", fontSize = 20.sp) }
+        viewModel.nationality.value.let { Text(text = "Nationality: $it", fontSize = 20.sp) }
         Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp)
         Button(onClick = {
 

@@ -3,7 +3,7 @@ package com.example.aupairconnect.domain.model
 import com.amplifyframework.core.model.Model
 
 data class User(
-    val name: String? = null,
+    var name: String? = null,
     val age: Int? = 0,
     val nationality: String? = null,
     val currentLocation: String? = null,
