@@ -7,24 +7,20 @@ import android.R
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
-import android.preference.PreferenceManager
 import android.util.Log
-import androidx.compose.runtime.collectAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.app.ActivityCompat
-import androidx.datastore.dataStore
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.amplifyframework.auth.AuthException
-import com.amplifyframework.auth.cognito.AWSCognitoAuthSession
 import com.amplifyframework.auth.cognito.exceptions.service.UserNotConfirmedException
-import com.amplifyframework.auth.result.AuthSessionResult
 import com.amplifyframework.kotlin.core.Amplify
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
@@ -32,8 +28,6 @@ import com.example.aupairconnect.StoreUserEmail
 import com.example.aupairconnect.graphs.Graph
 import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.repositories.S3Repository
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.PagerState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -165,7 +159,8 @@ class AuthViewModel constructor(
         }
     }
 
-    @OptIn(ExperimentalPagerApi::class)
+//    @OptIn(ExperimentalPagerApi::class)
+    @OptIn(ExperimentalFoundationApi::class)
     suspend fun continueSignUp(pagerState: PagerState){
         errorEmailPasswordEmpty.value = false
         errorPasswordsNoMatch.value = false

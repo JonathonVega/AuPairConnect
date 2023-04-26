@@ -5,6 +5,8 @@ import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -18,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -27,46 +31,61 @@ import com.example.aupairconnect.presentation.profile.ProfileViewModel
 @Composable
 fun ProfileScreen(
     onNavigation: NavHostController,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    userEmail: String,
+    userData: User
 ){
 
     //TODO: logoutState seems useless. Read later and delete
     val logoutState = remember{ mutableStateOf(false) }
     val context = LocalContext.current
-//    val datastore = StoreUserEmail(context)
-//    val savedEmail = datastore.getEmail.collectAsState(initial = "")
-//    viewModel.userEmail = savedEmail.value
-    var x:String?
+    val photoList = mutableListOf("Photo1","Photo2","Photo3","Photo4")
 
     Column(modifier = Modifier
-        .padding(start = 75.dp, end = 75.dp)
+        .padding(start = 25.dp, end = 25.dp)
         .fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally) {
         ProfileImage()
-//        colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White)
-        Text(text = "This is the Profile Screen", fontSize = 20.sp)
-        println(viewModel.userName.value)
-//        if(viewModel.userName.value.isNotEmpty()){
-//            x = viewModel.userName.value
-//            println("on profile UI, we are getting $x")
-//            Text(text = "$x", fontSize = 20.sp)
-//        }
-        viewModel.userName.value.let { Text(text = it, fontSize = 20.sp) }
-        viewModel.userName.value.let { Text(text = "Age: $it", fontSize = 20.sp) }
-        viewModel.nationality.value.let { Text(text = "Nationality: $it", fontSize = 20.sp) }
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(text = "${userData.name}", fontSize = 36.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${userData.status}",color = Color.Gray ,fontSize = 20.sp)
+            Text(text = "From: ${userData.nationality}", fontSize = 20.sp)
+        }
+        Divider(thickness = Dp.Hairline, color = Color.Black)
+        Text(text = "Age: ${userData.age}", fontSize = 20.sp)
+        Divider(thickness = Dp.Hairline, color = Color.Black)
         Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp)
-        Button(onClick = {
+        LazyRow(){
+            itemsIndexed(photoList){ index, photo ->
 
-            //TODO:Uncomment later once Home UI is built out.
-//            viewModel.signOut()
-            logoutState.value = true
-        }) {
-            Text(text = "Log out")
-            if(logoutState.value){
-                viewModel.signOut(LocalContext.current)
             }
         }
+        Divider(thickness = Dp.Hairline, color = Color.Black)
+        if (userData.bio.isNullOrBlank()){
+//            Text(text = "Bio is under construction \uD83D\uDEA7", fontSize = 20.sp)
+            Text(text = "Hi, I'm from this country. Looking for friends that want to party and hang out. I am a engineer by heart and will occasionally work on projects at home when I have nothing to do. Favorite food is japanese, so if you got a recommendation, let me know!", fontSize = 20.sp)
+        } else {
+            Text(text = "${userData.bio}", fontSize = 20.sp)
+
+        }
+        Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = {
+
+                //TODO:Uncomment later once Home UI is built out.
+//            viewModel.signOut()
+                logoutState.value = true
+            }, colors = ButtonDefaults.buttonColors(backgroundColor = Color.Red)) {
+                Text(text = "Log out")
+                if(logoutState.value){
+                    viewModel.signOut(LocalContext.current)
+                }
+            }
+            Button(onClick = { /*TODO*/ }) {
+                Text("Edit Profile")
+            }
+        }
+
         //TODO: Delete the commented code if not needed anymore
 //        Button(onClick = { viewModel.getCurrentUser() }) {
 //            Text(text = "Check current user")

@@ -29,31 +29,6 @@ class ProfileViewModel constructor(
 ) : ViewModel() {
 
 //    var userEmail:String? = null
-    var userInfo: com.example.aupairconnect.domain.model.User? = null
-    var userName = mutableStateOf("")
-    var nationality = mutableStateOf("")
-    var age = mutableStateOf("")
-
-    init {
-        println("We will get the userdata from userEmail $userEmail!!!!!!!!")
-//        var userInfo: com.example.aupairconnect.domain.model.User?
-        val listOfUsers = mutableListOf<User>();
-        CoroutineScope(Dispatchers.IO).launch {
-            Amplify.DataStore.query(User::class, Where.matches(User.EMAIL.eq(userEmail)))
-                .catch { Log.e("MyAmplifyApp", "Query failed", it) }
-                .collect {
-                    Log.i("MyAmplifyApp", "User email in viewmodel: ${it.email}")
-                    val userData = com.example.aupairconnect.domain.model.User(it.name, it.age, it.nationality, it.currentLocation, it.status, it.bio)
-                    listOfUsers.add(it)
-                    userName.value = listOfUsers[0].name
-                    nationality.value = listOfUsers[0].nationality
-                    age.value = listOfUsers[0].age.toString()
-                    println("Now printing mutable ${userName.value}")
-//                    println("Now printing ${userInfo?.name}")
-                }
-        }
-        println("Did we get the userdata from viewmodel!!!!!!!****!")
-    }
 
     fun signOut(context: Context){
         CoroutineScope(Dispatchers.IO).launch {
@@ -64,26 +39,5 @@ class ProfileViewModel constructor(
             activity?.finish()
             activity?.startActivity(Intent(activity, MainActivity::class.java))
         }
-    }
-
-    fun getUserData(email: String) {
-        println("We will get the userdata from viewmodel!!!!!!!!")
-//        var userInfo: com.example.aupairconnect.domain.model.User?
-        val listOfUsers = mutableListOf<User>();
-        CoroutineScope(Dispatchers.IO).launch {
-            Amplify.DataStore.query(User::class, Where.matches(User.EMAIL.eq(email)))
-                .catch { Log.e("MyAmplifyApp", "Query failed", it) }
-                .collect {
-                    Log.i("MyAmplifyApp", "User email in viewmodel: ${it.email}")
-                    val userData = com.example.aupairconnect.domain.model.User(it.name, it.age, it.nationality, it.currentLocation, it.status, it.bio)
-//                    userInfo = userData
-//                    userName.value = it.name
-                    listOfUsers.add(it)
-                    userName.value = listOfUsers[0].name
-                    println("Now printing mutable ${userName.value}")
-//                    println("Now printing ${userInfo?.name}")
-                }
-        }
-        println("Did we get the userdata from viewmodel!!!!!!!****!")
     }
 }

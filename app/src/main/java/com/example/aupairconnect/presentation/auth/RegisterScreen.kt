@@ -10,9 +10,12 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -51,13 +54,10 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.aupairconnect.presentation.auth.AuthViewModel
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
 fun RegisterScreen(
     onNavigation: NavHostController,
@@ -81,7 +81,7 @@ fun RegisterScreen(
 
     //TODO: Add loading spinner when getting current location
 
-    HorizontalPager(count = 4,
+    HorizontalPager(pageCount = 4,
         state = pagerState,
         userScrollEnabled = false,
         modifier = Modifier

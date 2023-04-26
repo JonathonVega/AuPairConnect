@@ -24,6 +24,8 @@ fun AupairCard(
     aupair: Aupair
 ) {
     val shape =  RoundedCornerShape(24.dp)
+
+    //TODO: Fix issue with aupair name not showing!
     Box(modifier = Modifier
         .fillMaxWidth(),
         contentAlignment = Alignment.Center) {
@@ -36,11 +38,18 @@ fun AupairCard(
             fontWeight = FontWeight.Bold
         )
     }
-
+    Text(
+        text = aupair.name.toString(),
+        modifier = Modifier
+            .padding(horizontal = 10.dp, vertical = 50.dp),
+        color = ACTheme,
+        fontSize = 35.sp,
+        fontWeight = FontWeight.Bold
+    )
     Card(
         shape = MaterialTheme.shapes.large,
         modifier = Modifier
-            .padding(start = 10.dp, end = 10.dp, bottom = 70.dp, top = 50.dp)
+            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp, top = 50.dp)
             .fillMaxSize()
 //            .requiredHeight(600.dp)
             .clip(shape)
@@ -48,7 +57,6 @@ fun AupairCard(
 //            .border(5.dp, Color.Black, shape)
 
     ) {
-
         Column(horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier

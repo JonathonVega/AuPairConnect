@@ -1,6 +1,5 @@
 package com.example.aupairconnect.graphs
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Tab
@@ -13,9 +12,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.amplifyframework.datastore.generated.model.User
 import com.amplifyframework.kotlin.core.Amplify
 import com.example.aupairconnect.*
 import com.example.aupairconnect.repositories.AuthRepository
@@ -23,6 +19,7 @@ import com.example.aupairconnect.presentation.chat.ChatViewModel
 import com.example.aupairconnect.presentation.discover.DiscoverViewModel
 import com.example.aupairconnect.presentation.profile.ProfileViewModel
 import com.example.aupairconnect.repositories.DatastoreRepository
+import kotlinx.coroutines.runBlocking
 
 //TODO: Should probably delete the navGraph idea and stick with the Jetpack Compose Tabs
 @Composable
@@ -44,6 +41,7 @@ fun HomeNavGraph(navController: NavHostController){
         }
         val authRepository = AuthRepository()
         val datastoreRepository = DatastoreRepository()
+        val userData = getUserData(datastoreRepository, savedEmail.value)
         when (tabIndex.value) {
             0 -> {
                 val discoverViewModel = DiscoverViewModel(navController)
@@ -55,10 +53,12 @@ fun HomeNavGraph(navController: NavHostController){
             }
             2 -> {
                 val profileViewModel = ProfileViewModel(navController, authRepository, datastoreRepository, savedEmail.value)
-                ProfileScreen(navController, profileViewModel)
+                ProfileScreen(navController, profileViewModel, savedEmail.value, userData)
             }
         }
     }
+
+    //TODO: Delete code for NavHost Later once removing all of Navigation Graph
 //    NavHost(
 //        navController = navController,
 //        route = Graph.HOME,
@@ -83,4 +83,17 @@ fun HomeNavGraph(navController: NavHostController){
 //            ProfileScreen(navController, profileViewModel)
 //        }
 //    }
+}
+
+
+fun getUserData(datastoreRepository:DatastoreRepository, email: String): com.example.aupairconnect.domain.model.User = runBlocking{
+    var dataInfo: com.example.aupairconnect.domain.model.User = com.example.aupairconnect.domain.model.User()
+    dataInfo = datastoreRepository.getUserData(email)
+
+    println("Should hit this last")
+    val trueDataInfo = dataInfo
+    if (trueDataInfo != null) {
+        trueDataInfo
+    }
+    trueDataInfo
 }
