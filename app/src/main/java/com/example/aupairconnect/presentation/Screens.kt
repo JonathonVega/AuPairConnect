@@ -15,6 +15,8 @@ sealed class Screens(
     object HomeScreen: Screens("home")
     object ChatScreen: Screens("chat")
     object ProfileScreen: Screens("profile")
+    object EditProfileScreen: Screens("editProfile")
+    object HomeTabs: Screens("homeTabs")
 }
 
 sealed class BottomNavigationItem(val route: String, val label: String, val icon: ImageVector){

@@ -3,11 +3,14 @@ package com.example.aupairconnect
 import android.app.Activity
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,15 +21,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.aupairconnect.domain.model.User
+import com.example.aupairconnect.presentation.discover.DiscoverViewModel
+import com.example.aupairconnect.presentation.profile.EditProfileScreen
 import com.example.aupairconnect.presentation.profile.ProfileViewModel
+import kotlinx.coroutines.delay
 
 @Composable
 fun ProfileScreen(
@@ -40,6 +49,8 @@ fun ProfileScreen(
     val logoutState = remember{ mutableStateOf(false) }
     val context = LocalContext.current
     val photoList = mutableListOf("Photo1","Photo2","Photo3","Photo4")
+    println("ihuiuii kji ${userData.name}")
+//    viewModel.editName.value = userData.name
 
     Column(modifier = Modifier
         .padding(start = 25.dp, end = 25.dp)
@@ -48,17 +59,20 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally) {
         ProfileImage()
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "${userData.name}", fontSize = 36.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${viewModel.userData?.name}", fontSize = 36.sp, fontWeight = FontWeight.Bold)
             Text(text = "${userData.status}",color = Color.Gray ,fontSize = 20.sp)
             Text(text = "From: ${userData.nationality}", fontSize = 20.sp)
         }
         Divider(thickness = Dp.Hairline, color = Color.Black)
         Text(text = "Age: ${userData.age}", fontSize = 20.sp)
+        Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp, textAlign = TextAlign.Center)
         Divider(thickness = Dp.Hairline, color = Color.Black)
-        Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp)
-        LazyRow(){
+        LazyRow(modifier = Modifier.fillMaxWidth()){
             itemsIndexed(photoList){ index, photo ->
-
+                RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto3))
+                RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto1))
+                RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto5))
+                RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto2))
             }
         }
         Divider(thickness = Dp.Hairline, color = Color.Black)
@@ -81,7 +95,13 @@ fun ProfileScreen(
                     viewModel.signOut(LocalContext.current)
                 }
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = {
+//                val route = Screens.EditProfileScreen.route
+//                onNavigation.navigate(route)
+//                RegisterScreen(onNavigation = navController, viewModel = authViewModel)
+                val route = Screens.EditProfileScreen.route
+                onNavigation.navigate(route)
+            }) {
                 Text("Edit Profile")
             }
         }
@@ -110,4 +130,18 @@ fun LogOut(){
     val activity = (LocalContext.current as? Activity)
     activity?.finish()
     activity?.startActivity(Intent(activity, MainActivity::class.java))
+}
+
+@Composable
+fun RoundedImage(painter: Painter){
+    val shape =  RoundedCornerShape(24.dp)
+    Image(painter = painter,
+        contentDescription = "Aupair Photo",
+        contentScale = ContentScale.Fit,
+        modifier = Modifier
+//            .height(100.dp)
+            .size(100.dp)
+            .clip(shape)
+            .background(Color.White, shape)
+            .border(0.dp, Color.White, shape))
 }

@@ -1,5 +1,6 @@
 package com.example.aupairconnect
 
+import android.util.Log
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -11,17 +12,27 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.amplifyframework.core.Amplify
 import com.example.aupairconnect.graphs.HomeNavGraph
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
 
 @Composable
 fun HomeScreen(navController: NavHostController = rememberNavController()){
-    Scaffold(
-        bottomBar = { BottomBar(navController = navController) }
-    ) {
-        HomeNavGraph(navController = navController)
-
-    }
+//    Scaffold(
+//        bottomBar = { BottomBar(navController = navController) }
+//    ) {
+//        HomeNavGraph(navController = navController)
+//
+//    }
+    Amplify.DataStore.clear(
+        {
+            Log.i("MyAmplifyApp", "DataStore cleared")
+        },
+        {
+            Log.e("MyAmplifyApp", "Error clearing DataStore", it)
+        }
+    )
+    HomeNavGraph(navController = navController)
 }
 
 @Composable

@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.amplifyframework.core.Amplify
+import com.amplifyframework.datastore.DataStoreException
 import com.example.aupairconnect.graphs.Graph
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
 import com.example.aupairconnect.presentation.auth.AuthViewModel
@@ -49,10 +50,16 @@ fun LoginScreen(
     LaunchedEffect(savedEmail.value.isEmpty()){
         println("userNotConfirmedFailure is: ${viewModel.userNotConfirmedFailure.value}")
         println("saved email is ${savedEmail.value}")
-        Amplify.DataStore.start(
-            { Log.i("MyAmplifyApp", "DataStore started") },
-            { Log.e("MyAmplifyApp", "Error starting DataStore", it) }
-        )
+//        Amplify.DataStore.start(
+//            { Log.i("MyAmplifyApp", "DataStore started") },
+//            { Log.e("MyAmplifyApp", "Error starting DataStore", it) }
+//        )
+        try {
+            com.amplifyframework.kotlin.core.Amplify.DataStore.clear()
+            Log.i("MyAmplifyApp", "DataStore cleared")
+        } catch (error: DataStoreException) {
+            Log.e("MyAmplifyApp", "Error clearing DataStore", error)
+        }
         viewModel.checkIfAlreadySignedIn(savedEmail.value)
     }
 

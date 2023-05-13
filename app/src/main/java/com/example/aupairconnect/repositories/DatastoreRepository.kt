@@ -4,6 +4,7 @@ import android.util.Log
 import com.amplifyframework.api.ApiException
 import com.amplifyframework.api.graphql.model.ModelQuery
 import com.amplifyframework.core.model.query.Where
+import com.amplifyframework.datastore.DataStoreException
 import com.amplifyframework.datastore.generated.model.User
 import com.amplifyframework.kotlin.core.Amplify
 //import com.amplifyframework.core.Amplify
@@ -31,6 +32,7 @@ class DatastoreRepository() {
                     listOfUsers[0].bio
                 )
             }
+        println("We have received ${userObject.name}")
         return userObject
     }
 }
