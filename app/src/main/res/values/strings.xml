@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">AuPair Connect</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Aupair Connect</string>
     <string name="mapbox_access_token">pk.eyJ1IjoiamZ2ZWdhIiwiYSI6ImNqOTNqNmhhdTB2dWgzM213YmR0ZWcwMGUifQ.aQ7paYB66eKLIQ4W9v1e9A</string>
 </resources>

@@ -1,10 +1,11 @@
 package com.example.aupairconnect.presentation.profile
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -25,23 +26,22 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
-import com.amplifyframework.datastore.DataStoreException
-import com.amplifyframework.core.Amplify
-import com.amplifyframework.core.model.query.Where
 import com.example.aupairconnect.domain.model.User
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import com.example.aupairconnect.repositories.APIRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EditProfileScreen(
     onNavigation: NavHostController,
@@ -52,24 +52,33 @@ fun EditProfileScreen(
 
     val editAge = remember { mutableStateOf("") }
     val editCurrentLocation = remember { mutableStateOf("") }
-    Column() {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+
+    Column(modifier = Modifier
+        .padding(start = 25.dp, end = 25.dp)
+        .clickable { keyboardController?.hide() }
+        .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally) {
         TextField(value = viewModel.profileName.value,
             onValueChange = {viewModel.profileName.value = it},
+            placeholder = { Text("${viewModel.profileName.value}") },
             colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             label = { Text(text = "Enter Name") }
         )
         AupairSegmentedButtons(viewModel)
         OriginCountryDropdown(viewModel)
-        TextField(value = editAge.value,
-            onValueChange = { editAge.value = it},
+        TextField(value = viewModel.profileAge.value,
+            onValueChange = { viewModel.profileAge.value = it},
             colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             label = {Text(text = "What is your age?")})
-        Text(text = "we will print in edit profile the name: ${userData.name}")
+        Text(text = "we will print in edit profile the name: ${viewModel.profileName.value}")
         Button(onClick = {
 
-            saveAndQuery(onNavigation, userEmail)
+            saveAndQuery(onNavigation,viewModel ,userEmail)
 
 
 //            com.amplifyframework.kotlin.core.Amplify.DataStore.query(
@@ -112,7 +121,7 @@ fun OriginCountryDropdown(viewModel: ProfileViewModel){
     ) {
         TextField(
             readOnly = true,
-            value = viewModel.editNationality.value,
+            value = viewModel.profileNationality.value,
             onValueChange = { },
             label = { Text("Select Your Nationality") },
             trailingIcon = {
@@ -131,7 +140,7 @@ fun OriginCountryDropdown(viewModel: ProfileViewModel){
             viewModel.COUNTRY_LIST.forEach { country ->
                 DropdownMenuItem(
                     onClick = {
-                        viewModel.editNationality.value = country
+                        viewModel.profileNationality.value = country
                         expanded.value = false
                     }
                 ) {
@@ -158,7 +167,7 @@ fun AupairSegmentedButtons(viewModel: ProfileViewModel){
         itemsList.forEachIndexed { index, item ->
 
             OutlinedButton(
-                onClick = { viewModel.editStatus.value = item
+                onClick = { viewModel.profileStatus.value = item
                     selectedIndex.value = index},
                 modifier = when (index) {
                     0 ->
@@ -219,24 +228,49 @@ fun AupairSegmentedButtons(viewModel: ProfileViewModel){
     }
 }
 
-fun saveAndQuery(onNavigation: NavHostController, email: String){
-    Amplify.DataStore.clear(
-        { Log.i("MyAmplifyApp", "DataStore cleared") },
-        { Log.e("MyAmplifyApp", "Error clearing DataStore", it) }
-    )
-    println("yea")
-    Amplify.DataStore.query(com.amplifyframework.datastore.generated.model.User::class.java,
-        Where.matches(com.amplifyframework.datastore.generated.model.User.EMAIL.eq(email)),
-        { users ->
-            println("yea2")
-            while (users.hasNext()) {
-                val post = users.next()
-                Log.i("MyAmplifyApp", "User from edit: $users")
-                onNavigation.popBackStack()
-            }
-        },
-        { Log.e("MyAmplifyApp", "Query failed", it) }
-    )
-    println("yea3")
+fun saveAndQuery(onNavigation: NavHostController, viewModel: ProfileViewModel, email: String){
+    var userInfo: User? = null
+    val apiRepository = APIRepository()
+//    CoroutineScope(Dispatchers.IO).launch {
+//
+//
+//    }
+    runBlocking {
+//        datastoreRepository.clearDataStore()
+        println("Email is $email")
+        userInfo = apiRepository.getUserData()
+//        val dummyInfo = User("john", 5, "South America", "Here", "Aupair", "Yay, I'm here!")
+        viewModel.insertUserDataToViewModel(userInfo!!)
+        println("Lets check this out!!!!!!!!!!!!!!")
+        println(userInfo)
+        println(userInfo!!.name)
+
+
+        println("yea")
+        delay(2500)
+    }
+
+//    if(userInfo != null || userInfo?.name != null){
+//        onNavigation.popBackStack()
+//    }
+    onNavigation.popBackStack()
+
+//    val route = Screens.ProfileScreen.route
+//    onNavigation.navigate(route){
+//        popUpTo(route)
+//    }
+//    onNavigation.popBackStack(Screens.EditProfileScreen.route, true, true)
+
+//    Amplify.DataStore.query(com.amplifyframework.datastore.generated.model.User::class.java,
+//        Where.matches(com.amplifyframework.datastore.generated.model.User.EMAIL.eq(email)),
+//        { users ->
+//            println("yea2")
+//            while (users.hasNext()) {
+//                val user = users.next()
+//                Log.i("MyAmplifyApp", "User from edit: $user")
+//            }
+//        },
+//        { Log.e("MyAmplifyApp", "Query failed", it) }
+//    )
 
 }

@@ -26,6 +26,7 @@ import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.Screens
 import com.example.aupairconnect.StoreUserEmail
 import com.example.aupairconnect.graphs.Graph
+import com.example.aupairconnect.presentation.SplashScreen
 import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.repositories.S3Repository
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -42,7 +43,6 @@ import java.util.*
 class AuthViewModel constructor(
     private val onNavigation: NavHostController,
     private val authRepository: AuthRepository,
-    private val s3Repository: S3Repository
 ) : ViewModel() {
 
     // TODO: Put variables in viewModel
@@ -104,6 +104,8 @@ class AuthViewModel constructor(
         if(email.isNotEmpty()){
             println("The already signed in email is $email")
             onNavigation.popBackStack()
+//            SplashScreen(navController = onNavigation, route = )
+//            onNavigation.navigate(Screens.SplashScreen.route)
             onNavigation.navigate(Graph.HOME)
         }
     }

@@ -41,15 +41,13 @@ import kotlinx.coroutines.delay
 fun ProfileScreen(
     onNavigation: NavHostController,
     viewModel: ProfileViewModel,
-    userEmail: String,
-    userData: User
+    userEmail: String
 ){
 
     //TODO: logoutState seems useless. Read later and delete
     val logoutState = remember{ mutableStateOf(false) }
     val context = LocalContext.current
     val photoList = mutableListOf("Photo1","Photo2","Photo3","Photo4")
-    println("ihuiuii kji ${userData.name}")
 //    viewModel.editName.value = userData.name
 
     Column(modifier = Modifier
@@ -59,12 +57,12 @@ fun ProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally) {
         ProfileImage()
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = "${viewModel.userData?.name}", fontSize = 36.sp, fontWeight = FontWeight.Bold)
-            Text(text = "${userData.status}",color = Color.Gray ,fontSize = 20.sp)
-            Text(text = "From: ${userData.nationality}", fontSize = 20.sp)
+            Text(text = "${viewModel.userProfileData.name}", fontSize = 36.sp, fontWeight = FontWeight.Bold)
+            Text(text = "${viewModel.profileStatus.value}",color = Color.Gray ,fontSize = 20.sp)
+            Text(text = "From: ${viewModel.profileNationality.value}", fontSize = 20.sp)
         }
         Divider(thickness = Dp.Hairline, color = Color.Black)
-        Text(text = "Age: ${userData.age}", fontSize = 20.sp)
+        Text(text = "Age: ${viewModel.profileAge.value}", fontSize = 20.sp)
         Text(text = "Living In: Alexandria, Virginia, United States", fontSize = 20.sp, textAlign = TextAlign.Center)
         Divider(thickness = Dp.Hairline, color = Color.Black)
         LazyRow(modifier = Modifier.fillMaxWidth()){
@@ -76,11 +74,12 @@ fun ProfileScreen(
             }
         }
         Divider(thickness = Dp.Hairline, color = Color.Black)
-        if (userData.bio.isNullOrBlank()){
+        println("bio is ${viewModel.profileBio.value}")
+        if (viewModel.profileBio.value.isBlank() || viewModel.profileBio.value == "null"){
 //            Text(text = "Bio is under construction \uD83D\uDEA7", fontSize = 20.sp)
             Text(text = "Hi, I'm from this country. Looking for friends that want to party and hang out. I am a engineer by heart and will occasionally work on projects at home when I have nothing to do. Favorite food is japanese, so if you got a recommendation, let me know!", fontSize = 20.sp)
         } else {
-            Text(text = "${userData.bio}", fontSize = 20.sp)
+            Text(text = "${viewModel.profileBio.value}", fontSize = 20.sp)
 
         }
         Row(modifier = Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.SpaceEvenly) {
@@ -144,4 +143,13 @@ fun RoundedImage(painter: Painter){
             .clip(shape)
             .background(Color.White, shape)
             .border(0.dp, Color.White, shape))
+}
+
+fun insertUserDataToViewModel(userData: User, viewModel: ProfileViewModel){
+    viewModel.profileName.value = userData.name.toString()
+    viewModel.profileStatus.value = userData.status.toString()
+    viewModel.profileAge.value = userData.birthdate.toString()
+    viewModel.profileNationality.value = userData.nationality.toString()
+    viewModel.profileCurrentLocation.value = userData.latitude.toString()
+    viewModel.profileBio.value = userData.bio.toString()
 }

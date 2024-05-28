@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -13,26 +14,32 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.amplifyframework.core.Amplify
+import com.example.aupairconnect.domain.model.User
 import com.example.aupairconnect.graphs.HomeNavGraph
 import com.example.aupairconnect.presentation.ui.theme.ACTheme
+import com.example.aupairconnect.repositories.APIRepository
+import com.example.aupairconnect.repositories.AuthRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(navController: NavHostController = rememberNavController()){
-//    Scaffold(
-//        bottomBar = { BottomBar(navController = navController) }
-//    ) {
-//        HomeNavGraph(navController = navController)
+fun HomeScreen(email: String, navController: NavHostController = rememberNavController()){
+
+//    val authRepository = AuthRepository()
+//    val apiRepository = APIRepository()
+//    var userData = User()
+//
+//    CoroutineScope(Dispatchers.IO).launch {
+//        val userId = authRepository.getUserId()
+//        userData = apiRepository.getUserById(userId)
+//    }
+//    val coroutineScope = rememberCoroutineScope()
+//    coroutineScope.launch(Dispatchers.IO) {
 //
 //    }
-    Amplify.DataStore.clear(
-        {
-            Log.i("MyAmplifyApp", "DataStore cleared")
-        },
-        {
-            Log.e("MyAmplifyApp", "Error clearing DataStore", it)
-        }
-    )
-    HomeNavGraph(navController = navController)
+
+    HomeNavGraph(navController = navController, email)
 }
 
 @Composable

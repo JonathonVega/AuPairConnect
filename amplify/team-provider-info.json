@@ -1,4 +1,25 @@
 {
+  "prod": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-aupairconnect-prod-164400-authRole",
+      "UnauthRoleArn": "arn:aws:iam::937656879166:role/amplify-aupairconnect-prod-164400-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::937656879166:role/amplify-aupairconnect-prod-164400-authRole",
+      "Region": "us-east-1",
+      "DeploymentBucketName": "amplify-aupairconnect-prod-164400-deployment",
+      "UnauthRoleName": "amplify-aupairconnect-prod-164400-unauthRole",
+      "StackName": "amplify-aupairconnect-prod-164400",
+      "StackId": "arn:aws:cloudformation:us-east-1:937656879166:stack/amplify-aupairconnect-prod-164400/cf93c030-46ac-11ee-9302-0e92ab7cb01b",
+      "AmplifyAppId": "dypgtwtntecoe"
+    },
+    "categories": {
+      "auth": {
+        "aupairconnect2970bbe8": {}
+      },
+      "storage": {
+        "s31eaf2e4b": {}
+      }
+    }
+  },
   "dev": {
     "awscloudformation": {
       "AuthRoleName": "amplify-aupairconnect-dev-152926-authRole",

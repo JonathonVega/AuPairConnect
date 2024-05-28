@@ -74,19 +74,18 @@ fun RegisterScreen(
     var confirmPasswordVisibility = remember { mutableStateOf(false) }
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val pagerState = rememberPagerState()
+    val pagerState = rememberPagerState(pageCount = {
+        4
+    })
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val datastore = StoreUserEmail(context)
 
     //TODO: Add loading spinner when getting current location
 
-    HorizontalPager(pageCount = 4,
-        state = pagerState,
-        userScrollEnabled = false,
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { keyboardController?.hide() }) { page ->
+    HorizontalPager(state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+        userScrollEnabled = false ) { page ->
         when(page){
             0 -> {
                 Column(
@@ -307,6 +306,14 @@ fun RegisterScreen(
             }
         }
     }
+//    HorizontalPager(pageCount = 4,
+//        state = pagerState,
+//        userScrollEnabled = false,
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .clickable { keyboardController?.hide() }) { page ->
+//
+//    }
 }
 
 //@Composable

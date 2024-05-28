@@ -62,7 +62,7 @@ fun AupairCard(
             modifier = Modifier
                 .fillMaxSize()
                 .background(Color.LightGray)
-                .verticalScroll(rememberScrollState())
+//                .verticalScroll(rememberScrollState())
         ) {
 //            ImageAndText(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto4), "First Photo", aupair)
             RoundedImage(painterResource(id = com.example.aupairconnect.R.drawable.aupairphoto4))

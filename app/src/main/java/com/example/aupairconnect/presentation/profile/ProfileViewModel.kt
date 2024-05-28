@@ -3,29 +3,23 @@ package com.example.aupairconnect.presentation.profile
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
-import com.amplifyframework.api.graphql.model.ModelQuery
-import com.amplifyframework.core.model.query.Where
-import com.amplifyframework.kotlin.core.Amplify
 import com.example.aupairconnect.MainActivity
 import com.example.aupairconnect.StoreUserEmail
+import com.example.aupairconnect.domain.model.User
 //import com.example.aupairconnect.domain.model.User
-import com.amplifyframework.datastore.generated.model.User
 import com.example.aupairconnect.repositories.AuthRepository
-import com.example.aupairconnect.repositories.DatastoreRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class ProfileViewModel constructor(
     private val onNavigation: NavHostController,
-    private val authRepository: AuthRepository,
-    private val datastoreRepository: DatastoreRepository
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     val userEmail = mutableStateOf("")
@@ -35,11 +29,11 @@ class ProfileViewModel constructor(
     val profileAge = mutableStateOf("")
     val profileCurrentLocation = mutableStateOf("")
     val profileBio = mutableStateOf("")
-    var userData:com.example.aupairconnect.domain.model.User? = null
 
+    var userProfileData = User()
 
-    val editStatus = mutableStateOf("")
-    val editNationality = mutableStateOf("")
+//    val editStatus = mutableStateOf("")
+//    val editNationality = mutableStateOf("")
 //    lateinit var userstuff: com.example.aupairconnect.domain.model.User
 
     val COUNTRY_LIST = arrayOf("Afghanistan","Albania","Algeria","Andorra","Angola","Anguilla","Antigua and Barbuda","Argentina","Armenia","Aruba","Australia","Austria","Azerbaijan","Bahamas",
@@ -56,6 +50,23 @@ class ProfileViewModel constructor(
         "Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Uganda","Ukraine","United Arab Emirates",
         "United Kingdom","United States","Uruguay","Uzbekistan","Venezuela","Vietnam","Virgin Islands (US)","Yemen","Zambia","Zimbabwe")
 
+//    suspend fun getUserData(email: String): com.example.aupairconnect.domain.model.User{
+//
+//        var dataInfo: com.example.aupairconnect.domain.model.User = com.example.aupairconnect.domain.model.User()
+//        runBlocking {
+//            dataInfo = datastoreRepository.getUserData(email)
+//            delay(2500)
+//        }
+//
+//
+//        val trueDataInfo = dataInfo
+////    if (trueDataInfo != null) {
+////        trueDataInfo
+////    }
+////    trueDataInfo
+//        return dataInfo
+//    }
+
     fun signOut(context: Context){
         CoroutineScope(Dispatchers.IO).launch {
             val datastore = StoreUserEmail(context)
@@ -65,5 +76,15 @@ class ProfileViewModel constructor(
             activity?.finish()
             activity?.startActivity(Intent(activity, MainActivity::class.java))
         }
+    }
+
+    fun insertUserDataToViewModel(userData: com.example.aupairconnect.domain.model.User){
+        profileName.value = userData.name.toString()
+        profileStatus.value = userData.status.toString()
+        profileAge.value = userData.getUserAge().toString()
+        profileNationality.value = userData.nationality.toString()
+        profileCurrentLocation.value = userData.latitude.toString()
+        profileBio.value = userData.bio.toString()
+        userProfileData = userData
     }
 }

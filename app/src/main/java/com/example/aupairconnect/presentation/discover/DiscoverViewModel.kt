@@ -1,15 +1,28 @@
 package com.example.aupairconnect.presentation.discover
 
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.example.aupairconnect.domain.model.Aupair
+import com.example.aupairconnect.domain.model.User
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class DiscoverViewModel constructor(
     private val onNavigation: NavHostController
 ) : ViewModel() {
     val aupairList: MutableState<List<Aupair>> = mutableStateOf(ArrayList())
+
+//    val refreshScope = rememberCoroutineScope()
+    var refreshing = mutableStateOf(false)
+
+
+    var signInSuccessful = mutableStateOf(false)
 
     init {
         val aupairBio = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. " +
@@ -43,4 +56,6 @@ class DiscoverViewModel constructor(
             false)
         aupairList.value = listOf(aupair1, aupair2, aupair3, aupair4, aupair5)
     }
+
+
 }

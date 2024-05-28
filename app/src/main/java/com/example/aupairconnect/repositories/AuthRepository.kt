@@ -5,11 +5,13 @@ import com.amplifyframework.auth.AuthException
 import com.amplifyframework.auth.AuthUserAttributeKey
 import com.amplifyframework.auth.cognito.result.AWSCognitoAuthSignOutResult
 import com.amplifyframework.auth.options.AuthSignUpOptions
+import com.amplifyframework.core.model.temporal.Temporal
 import com.amplifyframework.datastore.DataStoreException
 import com.amplifyframework.datastore.generated.model.User
 //import com.amplifyframework.core.Amplify
 import com.amplifyframework.kotlin.core.Amplify
 import com.example.aupairconnect.graphs.Graph
+import java.util.Date
 
 
 //TODO: Comment File entirely. May Return to it another time in the future
@@ -76,12 +78,13 @@ class AuthRepository() {
             if (result.isSignedIn) {
                 Log.i("AuthQuickstart", "Sign in succeeded")
                 val newUser = User.builder()
+                    .handle("")
+                    .userId("")
                     .name(name)
                     .email(email)
-                    .age(age.toInt())
-                    .status(status)
-                    .nationality(registerNationality)
-                    .currentLocation(registerCurrentLocation)
+                    .status("")
+                    .birthdate(Temporal.Date(Date()))
+                    .nationality("")
                     .build()
                 try {
                     Amplify.DataStore.save(newUser)
