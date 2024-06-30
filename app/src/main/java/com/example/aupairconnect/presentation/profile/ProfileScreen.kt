@@ -40,8 +40,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun ProfileScreen(
     onNavigation: NavHostController,
-    viewModel: ProfileViewModel,
-    userEmail: String
+    viewModel: ProfileViewModel
 ){
 
     //TODO: logoutState seems useless. Read later and delete

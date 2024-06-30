@@ -71,7 +71,7 @@ class ProfileViewModel constructor(
         CoroutineScope(Dispatchers.IO).launch {
             val datastore = StoreUserEmail(context)
             datastore.saveEmail("")
-            authRepository.signOut()
+            AuthRepository.signOut()
             val activity = (context as? Activity)
             activity?.finish()
             activity?.startActivity(Intent(activity, MainActivity::class.java))

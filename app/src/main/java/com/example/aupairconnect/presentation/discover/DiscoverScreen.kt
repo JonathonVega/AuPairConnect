@@ -5,6 +5,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -77,17 +79,6 @@ fun DiscoverScreen(
     var aupairList = viewModel.aupairList.value
 
     val shape =  RoundedCornerShape(16.dp)
-//    HorizontalPager(pageCount = aupairList.size,
-//        state = pagerState,
-//        userScrollEnabled = true,
-//        verticalAlignment = Alignment.Top,
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(Color.LightGray)
-//    ) { page ->
-//        AupairCard(aupair = aupairList[page])
-//
-//    }
 
     Box(modifier = Modifier.pullRefresh(refreshingState)) {
         LazyVerticalGrid(columns = GridCells.Fixed(2), contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp), content = {
@@ -109,14 +100,23 @@ fun DiscoverScreen(
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(10.dp))
                     .background(Color.Blue)
-//                .paint(painterResource(id = R.drawable.aupairphoto4))
+                    .clickable {
+                        viewModel.selectedAupair = aupair
+                        val route = Screens.AupairCardScreen.route
+                        onNavigation.navigate(route)
+                    }
                 ){
-                    androidx.compose.foundation.Image(painter = painterResource(id = R.drawable.aupairphoto4), contentDescription = "User Image", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
-//                com.example.aupairconnect.presentation.components.RoundedImage(painterResource(id = R.drawable.aupairphoto4))
+                    androidx.compose.foundation.Image(bitmap = aupair.profileImages[0].asImageBitmap(), contentDescription = "cool", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+//                    if (aupair.supportingImages.isEmpty()){
+//                        androidx.compose.foundation.Image(bitmap = aupair.profileImage.asImageBitmap(), contentDescription = "cool", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+//                    } else {
+//                        androidx.compose.foundation.Image(bitmap = aupair.supportingImages[0].asImageBitmap(), contentDescription = "cool", modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Crop)
+//                    }
+
                     Column(modifier = Modifier
                         .align(Alignment.BottomStart)) {
                         Text(text = aupair.name.toString(), modifier = Modifier.padding(start = 8.dp), color = Color.White, fontSize = 25.sp, fontWeight = FontWeight.Bold)
-                        Text(text = aupair.originLocation.toString(), modifier = Modifier.padding(start = 8.dp), color = Color.White, fontSize = 25.sp)
+                        Text(text = aupair.nationality, modifier = Modifier.padding(start = 8.dp), color = Color.White, fontSize = 25.sp)
 //                    Text(text = aupair.age.toString(), fontSize = 25.sp)
 //                    if(aupair.isExAupair == true){
 //                        Text(text = "Ex Au pair", fontSize = 25.sp)

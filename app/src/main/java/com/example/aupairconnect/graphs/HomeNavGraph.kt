@@ -13,10 +13,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.amplifyframework.kotlin.auth.Auth
 import com.example.aupairconnect.*
 import com.example.aupairconnect.domain.model.User
 import com.example.aupairconnect.repositories.AuthRepository
 import com.example.aupairconnect.presentation.chat.ChatViewModel
+import com.example.aupairconnect.presentation.discover.AupairCardScreen
 import com.example.aupairconnect.presentation.discover.DiscoverViewModel
 import com.example.aupairconnect.presentation.profile.EditProfileScreen
 import com.example.aupairconnect.presentation.profile.ProfileViewModel
@@ -27,7 +29,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun HomeNavGraph(navController: NavHostController, userEmail: String){
+fun HomeNavGraph(navController: NavHostController){
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -41,17 +43,17 @@ fun HomeNavGraph(navController: NavHostController, userEmail: String){
         val profileViewModel = ProfileViewModel(navController, authRepository)
 
         val tabIndex = mutableStateOf(0)
-//        var userData:User? = null
-//        profileViewModel.userEmail.value = userEmail
-//        val userData = getUserData(userEmail)
         var userData = User()
 
         CoroutineScope(Dispatchers.IO).launch {
-            val userId = authRepository.getUserId()
-            userData = apiRepository.getUserById(userId)
+            val userId = AuthRepository.getUserId()
+            userData = APIRepository.getUserById(userId)
+
+            //turn User object to Aupair object
+//            userAupairData =
+
             profileViewModel.insertUserDataToViewModel(userData)
-            println("HELLOOOOWIOEJIEOJIOWEJ OERJOJEIO JEO")
-            println(userData.name)
+            discoverViewModel.userAupair = userData
         }
 
         composable(route = Screens.HomeTabs.route){
@@ -78,7 +80,7 @@ fun HomeNavGraph(navController: NavHostController, userEmail: String){
                         ChatScreen(navController, chatViewModel)
                     }
                     2 -> {
-                        ProfileScreen(navController, profileViewModel, userEmail)
+                        ProfileScreen(navController, profileViewModel)
                     }
                 }
             }
@@ -87,6 +89,9 @@ fun HomeNavGraph(navController: NavHostController, userEmail: String){
             val datastore = StoreUserEmail(LocalContext.current)
             val savedEmail = datastore.getEmail.collectAsState(initial = "")
             EditProfileScreen(navController, viewModel = profileViewModel, userData!!, savedEmail.value)
+        }
+        composable(route = Screens.AupairCardScreen.route){
+            AupairCardScreen(navController, discoverViewModel)
         }
 
 //        composable(route = BottomNavigationItem.Chat.route){
@@ -99,6 +104,8 @@ fun HomeNavGraph(navController: NavHostController, userEmail: String){
 //        }
     }
 }
+
+
 
 
 

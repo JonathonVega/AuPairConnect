@@ -24,7 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(email: String, navController: NavHostController = rememberNavController()){
+fun HomeScreen(navController: NavHostController = rememberNavController()){
 
 //    val authRepository = AuthRepository()
 //    val apiRepository = APIRepository()
@@ -39,7 +39,7 @@ fun HomeScreen(email: String, navController: NavHostController = rememberNavCont
 //
 //    }
 
-    HomeNavGraph(navController = navController, email)
+    HomeNavGraph(navController = navController)
 }
 
 @Composable

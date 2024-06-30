@@ -112,8 +112,8 @@ class AuthViewModel constructor(
 
     fun getCurrentUser(){
         CoroutineScope(Dispatchers.IO).launch {
-            authRepository.getCurrentUser()
-            authRepository.signOut()
+            AuthRepository.getCurrentUser()
+            AuthRepository.signOut()
         }
     }
 
@@ -202,7 +202,7 @@ class AuthViewModel constructor(
                     errorOverAge.value = false
                     CoroutineScope(Dispatchers.IO).launch {
                         //TODO: Handle when error occurs in aws call. Not just string validation
-                        authRepository.registerUser(registerEmail.value, registerPassword.value)
+                        AuthRepository.registerUser(registerEmail.value, registerPassword.value)
 //                        uploadProfilePicture(context)
                         val datastore = StoreUserEmail(context)
                         datastore.saveEmail(registerEmail.value)
@@ -225,8 +225,8 @@ class AuthViewModel constructor(
 
     fun confirmSignUp(code:String){
         CoroutineScope(Dispatchers.IO).launch {
-            authRepository.confirmSignUp(verifyEmail, code)
-            authRepository.firstTimeSignIn(verifyEmail, registerPassword.value, registerName.value, registerStatus.value, registerAge.value, registerNationality.value, registerCurrentLocation.value)
+            AuthRepository.confirmSignUp(verifyEmail, code)
+            AuthRepository.firstTimeSignIn(verifyEmail, registerPassword.value, registerName.value, registerStatus.value, registerAge.value, registerNationality.value, registerCurrentLocation.value)
         }
         onNavigation.popBackStack()
         onNavigation.navigate(Graph.HOME)

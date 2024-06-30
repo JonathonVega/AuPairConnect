@@ -25,14 +25,14 @@ fun RootNavigationGraph(navController: NavHostController){
 
         authNavGraph(navController = navController)
         composable(route = Graph.HOME) {
-            val datastore = StoreUserEmail(LocalContext.current)
-            val savedEmail = datastore.getEmail.collectAsState(initial = "")
+//            val datastore = StoreUserEmail(LocalContext.current)
+//            val savedEmail = datastore.getEmail.collectAsState(initial = "")
 
 
 
             println("Do we come here???????/")
-            println(savedEmail.value)
-            HomeScreen(savedEmail.value)
+//            println(savedEmail.value)
+            HomeScreen()
         }
     }
 }

@@ -75,9 +75,9 @@ fun AupairCard(
                 .padding(all = 10.dp)) {
                 Column() {
 //                    Text(text = aupair.name.toString(), fontSize = 25.sp, fontWeight = FontWeight.Bold)
-                    Text(text = aupair.originLocation.toString(), fontSize = 25.sp)
-                    Text(text = aupair.age.toString(), fontSize = 25.sp)
-                    if(aupair.isExAupair == true){
+                    Text(text = aupair.nationality.toString(), fontSize = 25.sp)
+                    Text(text = aupair.birthdate.toString(), fontSize = 25.sp)
+                    if(aupair.status == "Ex-Aupair"){
                         Text(text = "Ex Au pair", fontSize = 25.sp)
                     }
                 }

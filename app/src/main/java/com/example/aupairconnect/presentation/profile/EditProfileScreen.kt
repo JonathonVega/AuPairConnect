@@ -238,7 +238,7 @@ fun saveAndQuery(onNavigation: NavHostController, viewModel: ProfileViewModel, e
     runBlocking {
 //        datastoreRepository.clearDataStore()
         println("Email is $email")
-        userInfo = apiRepository.getUserData()
+        userInfo = APIRepository.getUserData()
 //        val dummyInfo = User("john", 5, "South America", "Here", "Aupair", "Yay, I'm here!")
         viewModel.insertUserDataToViewModel(userInfo!!)
         println("Lets check this out!!!!!!!!!!!!!!")
